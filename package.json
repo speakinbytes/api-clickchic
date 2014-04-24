@@ -1,0 +1,21 @@
+{
+  "name": "api-clickchic",
+  "version": "0.0.0",
+  "description": "This is the ClickChic API",
+  "main": "web.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "clickchic"
+  ],
+  "author": "SpeakinBytes",
+  "license": "MIT",
+  "dependencies": {
+    "logfmt": "^1.1.2",
+    "express": "^4.0.0"
+  },
+  "engines": {
+    "node": "0.10.x"
+  }
+}
