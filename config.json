@@ -1,0 +1,11 @@
+{
+    "port" : 3000,
+    "mongoose": {
+        "uri"	: "mongodb://localhost/clickChic",
+        "port" 	: 27017
+    },
+    "localhost" : "localhost",
+    "security": {
+        "tokenLife" : 3600
+    }
+}
