@@ -6,7 +6,7 @@ module.exports = function(app) {
     app.post('/api/v1/product', products.create)
     app.post('/api/v1/products', products.searchIndex);
     app.get('/api/v1/product/:id', products.show);
-    //app.post('/api/v1/prueba', products.prueba);
+    app.post('/api/v1/prueba', products.prueba);
 
     // Categories Routes
     var categories = require('../app/controllers/categories');
