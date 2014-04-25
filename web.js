@@ -39,15 +39,15 @@ process.env.MONGOLAB_URI ||
 process.env.MONGOHQ_URL ||
 config.get('mongoose:uri');
 
-var theport = process.env.PORT || config.get('port');
-
+var port  = process.env.PORT || config.get('port');
+var ip    = process.env.IP  config.get('localhost');
 // Conexión
 mongoose.connect(uristring, function(err, res) {
   if(err) {
     console.log('ERROR: connecting to Database. ' + err);
   } else {
         console.log('Connected to Database');
-        server.listen(process.env.PORT || config.get('port'), process.env.IP || config.get('localhost'), function(){
+        server.listen(port, ip, function(){
             var addr = server.address();
             console.log("Node start at ", addr.address + ":" + addr.port);
         });
