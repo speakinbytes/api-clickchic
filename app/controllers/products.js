@@ -81,6 +81,37 @@
     });
   };
 
+  exports.prueba = function(req, res) {
+    log.info('POST - /product --> IMAGES product');
+    
+
+    var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
+    var AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
+    var S3_BUCKET = process.env.S3_BUCKET
+
+    var object_name = req.query.s3_object_name;
+    var mime_type = req.query.s3_object_type;
+
+    var now = new Date();
+    var expires = Math.ceil((now.getTime() + 10000)/1000); // 10 seconds from now
+    var amz_headers = "x-amz-acl:public-read";  
+
+    var put_request = "PUT\n\n"+mime_type+"\n"+expires+"\n"+amz_headers+"\n/"+S3_BUCKET+"/"+object_name;
+
+    var signature = crypto.createHmac('sha1', AWS_SECRET_KEY).update(put_request).digest('base64');
+    signature = encodeURIComponent(signature.trim());
+    signature = signature.replace('%2B','+');
+
+    var url = 'https://'+S3_BUCKET+'.s3.amazonaws.com/'+object_name;
+
+    var credentials = {
+        signed_request: url+"?AWSAccessKeyId="+AWS_ACCESS_KEY+"&Expires="+expires+"&Signature="+signature,
+        url: url
+    };
+    res.write(JSON.stringify(credentials));
+    res.end();
+
+  }
   // POST - /product --> Insert a new Product in the DB
   // Params - model, description, seller_id, category_id, subcategory_id, price, units, colour, gender, size
   exports.create = function(req, res) {
@@ -92,6 +123,32 @@
 
     // var userId = req.user.id;
     // console.log("--->" + userId);
+
+    var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
+    var AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
+    var S3_BUCKET = process.env.S3_BUCKET
+
+    var object_name = req.query.s3_object_name;
+    var mime_type = req.query.s3_object_type;
+
+    var now = new Date();
+    var expires = Math.ceil((now.getTime() + 10000)/1000); // 10 seconds from now
+    var amz_headers = "x-amz-acl:public-read";  
+
+    var put_request = "PUT\n\n"+mime_type+"\n"+expires+"\n"+amz_headers+"\n/"+S3_BUCKET+"/"+object_name;
+
+    var signature = crypto.createHmac('sha1', AWS_SECRET_KEY).update(put_request).digest('base64');
+    signature = encodeURIComponent(signature.trim());
+    signature = signature.replace('%2B','+');
+
+    var url = 'https://'+S3_BUCKET+'.s3.amazonaws.com/'+object_name;
+
+    var credentials = {
+        signed_request: url+"?AWSAccessKeyId="+AWS_ACCESS_KEY+"&Expires="+expires+"&Signature="+signature,
+        url: url
+    };
+    res.write(JSON.stringify(credentials));
+    res.end();
 
     var product = new Product({
       model:          req.body.model,
@@ -124,6 +181,55 @@
       }
     });
   };
+
+  // --> PARA SUBIR DESDE EL MÓVIL
+  // POST - /product --> Insert a new Product in the DB
+  // Params - model, description, seller_id, category_id, subcategory_id, price, units, colour, gender, size
+  // exports.create_mobile = function(req, res) {
+  //   log.info('POST - /product --> Creating product');
+  //   log.info('Params - model: %s, description: %s, seller_id: %s, category_id: %s, subcategory_id: %s, price: %s, units: %s, colour: %s, gender: %s, size: %s', 
+  //                      req.body.model, req.body.description, req.body.seller_id, 
+  //                      req.body.category_id, req.body.subcategory_id, req.body.price, 
+  //                      req.body.units, req.body.colour, req.body.gender, req.body.size );
+
+  //   // var userId = req.user.id;
+  //   // console.log("--->" + userId);
+
+  //   var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
+  //   var AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
+  //   var S3_BUCKET = process.env.S3_BUCKET
+
+  //   var product = new Product({
+  //     model:          req.body.model,
+  //     description:    req.body.description,
+  //     seller_id:      req.body.seller_id,
+  //     category_id:    req.body.category_id, 
+  //     subcategory_id: req.body.subcategory_id, 
+  //     price:          req.body.price,
+  //     units:          req.body.units, 
+  //     colour:         req.body.colour, 
+  //     gender:         req.body.gender, 
+  //     size:           req.body.size      
+  //   });
+
+  //   product.save(function(err) {
+  //     if(!err) {
+  //       log.info("product created");
+  //       res.statusCode = 201;
+  //       res.send({ id: product.id});
+  //     } else {
+  //       if(err.name == 'ValidationError') {
+  //         res.statusCode = 400;
+  //         log.error('Validation error(%d): %s',res.statusCode,err.message);
+  //         res.send('Validation error('+res.statusCode+'): '+err.message);
+  //       } else {
+  //         res.statusCode = 500;
+  //         log.error('Internal error(%d): %s',res.statusCode,err.message);
+  //         res.send({ error: 'Server error' });
+  //       }
+  //     }
+  //   });
+  // };
 
   // //PUT - Update a register already exists
   // updateTshirt = function(req, res) {

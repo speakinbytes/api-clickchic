@@ -47,12 +47,13 @@ var ip    = process.env.IP || config.get('localhost');
 mongoose.connect(uristring, function(err, res) {
   if(err) {
     console.log('ERROR connecting to: ' + uristring + '. ' + err);
-  } else {
-        console.log('Succeeded connected to: ' + uristring);
-        server.listen(port, function(){
-            var addr = server.address();
-            console.log("Node start at ", addr.address + ":" + addr.port);
-        });
+  } 
+  else {
+    console.log('Succeeded connected to: ' + uristring);
+    server.listen(port, ip, function(){
+      var addr = server.address();
+      console.log("Node start at ", addr.address + ":" + addr.port);
+    });
   }
 });
 // var connectWithRetry = function() {
