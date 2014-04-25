@@ -39,6 +39,8 @@ process.env.MONGOLAB_URI ||
 process.env.MONGOHQ_URL ||
 config.get('mongoose:uri');
 
+console.log(process.env.MONGOLAB_URI + " asdf " + process.env.MONGOHQ_URL);
+
 var port  = process.env.PORT || config.get('port');
 var ip    = process.env.IP || config.get('localhost');
 // Conexión
