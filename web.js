@@ -46,12 +46,21 @@ var ip    = process.env.IP || config.get('localhost');
 // Conexión
 mongoose.connect(uristring, function(err, res) {
   if(err) {
-    console.log('ERROR: connecting to Database. ' + err);
+    console.log('ERROR connecting to: ' + uristring + '. ' + err);
   } else {
-        console.log('Connected to Database');
+        console.log('Succeeded connected to: ' + uristring);
         server.listen(port, ip, function(){
             var addr = server.address();
             console.log("Node start at ", addr.address + ":" + addr.port);
         });
   }
 });
+// var connectWithRetry = function() {
+//   return mongoose.connect(mongoUrl, function(err) {
+//     if (err) {
+//       console.error('Failed to connect to mongo on startup - retrying in 5 sec', err);
+//       setTimeout(connectWithRetry, 5000);
+//     }
+//   });
+// };
+// connectWithRetry();

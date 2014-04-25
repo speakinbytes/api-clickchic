@@ -1,6 +1,5 @@
 module.exports = function(app) {
 
-
     //Products Routes
     var products = require('../app/controllers/products');
     app.get('/api/v1/products', products.index);

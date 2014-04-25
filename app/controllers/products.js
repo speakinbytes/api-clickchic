@@ -25,7 +25,7 @@
   	Product.find(function(err, products) {
       if (products.length == 0) {
         res.statusCode = 204;
-        log.info('Status(%d): %s',res.statusCode, "No find products");        
+        log.info('Status(%d): %s',res.statusCode, "No find products. :(");        
         return res.send("Prueba");
       }
   		if(!err) {

@@ -8,8 +8,8 @@
   	Category.find(function(err, categories) {
       if (categories.length == 0) {
         res.statusCode = 204;
-        log.info('Status(%d): %s',res.statusCode, "No find products");        
-        return res.json([]);
+        log.info('Status(%d): %s',res.statusCode, "No find categories");        
+        return res.send("No find categories");
       }
   		if(!err) {
   			res.json({ "categories" : categories });
