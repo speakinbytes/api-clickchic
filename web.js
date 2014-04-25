@@ -49,7 +49,7 @@ mongoose.connect(uristring, function(err, res) {
     console.log('ERROR connecting to: ' + uristring + '. ' + err);
   } else {
         console.log('Succeeded connected to: ' + uristring);
-        server.listen(port, ip, function(){
+        server.listen(port, function(){
             var addr = server.address();
             console.log("Node start at ", addr.address + ":" + addr.port);
         });
