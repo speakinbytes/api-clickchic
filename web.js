@@ -40,7 +40,7 @@ process.env.MONGOHQ_URL ||
 config.get('mongoose:uri');
 
 var port  = process.env.PORT || config.get('port');
-var ip    = process.env.IP  config.get('localhost');
+var ip    = process.env.IP || config.get('localhost');
 // Conexión
 mongoose.connect(uristring, function(err, res) {
   if(err) {
