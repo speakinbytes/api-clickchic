@@ -10,7 +10,7 @@ var Product = new Schema({
   category_id:    { type: Number },
   subcategory_id: { type: Number },
   price:          { type: Number },
-  images:         [ { type: String } ],
+  images:         [ Images ],
   colour:         { type: String,
                     enum: ['blue', 'red', 'green', 'yellow'] },
   units:          { type: Number },
