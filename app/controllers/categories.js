@@ -9,10 +9,10 @@
       if (categories.length == 0) {
         res.statusCode = 204;
         log.info('Status(%d): %s',res.statusCode, "No find products");        
-        return res.send([]);
+        return res.json([]);
       }
   		if(!err) {
-  			res.send({ "categories" : categories });
+  			res.json({ "categories" : categories });
   		} else {
         res.statusCode = 500;
   			log.error('Internal error(%d): %s',res.statusCode,err.message);
@@ -25,8 +25,9 @@
   // Params - name_es, name_en, name_cat
   exports.create = function(req, res) {
     log.info('POST - /category --> Creating category');
-    log.info('Params - name_es: %s, name_en: %s, name_cat: %s', 
+    log.info('Body - name_es: %s, name_en: %s, name_cat: %s', 
                        req.body.name_es, req.body.name_en, req.body.name_cat );
+    log.info(req.body[0]);
 
     var category = new Category({
       name_es:    req.body.name_es,  

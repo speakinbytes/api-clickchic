@@ -26,7 +26,7 @@
       if (products.length == 0) {
         res.statusCode = 204;
         log.info('Status(%d): %s',res.statusCode, "No find products");        
-        return res.send([]);
+        return res.send("Prueba");
       }
   		if(!err) {
   			res.send({ "products" : products });

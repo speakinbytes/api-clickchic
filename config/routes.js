@@ -10,10 +10,7 @@ module.exports = function(app) {
 
     var categories = require('../app/controllers/categories');
 
-    app.get('/api/v1/categories', categories.index);
-    app.post('/api/v1/categories', categories.create);
-
-    //Finish with setting up the articleId param
-    app.param('productId', products.product);
-
+    app.route('/api/v1/categories')
+        .get(categories.index)
+        .post(categories.create);
 };
