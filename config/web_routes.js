@@ -17,6 +17,7 @@ module.exports = function(app) {
     var products = require('../app/controllers/products');
     app.get('/products', products.web_index);
     app.get('/products/new', products.web_new_product);
+    app.get('/sign_s3', products.sign_s3);
 
     // Shop routes
     app.get('/shops', products.web_shops);
