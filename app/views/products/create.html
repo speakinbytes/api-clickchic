@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/css/main.css">
+        <link rel="stylesheet" href="/css/custom.css">
+        <script src="/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+    </head>
+    <body style="padding-top:70px; background:#ebeced;">
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <!-- NAVBAR
+        ================================================== -->
+        <div class="navbar-wrapper">
+          <div class="container">
+            
+            <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+              <div class="container">
+                <div class="navbar-header">
+                  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                  </button>
+                  <a class="navbar-brand" href="#">ClickChic</a>
+                </div>
+                <div class="navbar-collapse collapse">
+                  <ul class="nav navbar-nav">
+                    <li><a href="/index">Inicio</a></li>
+                    <li class="active"><a href="/products">Productos</a></li>
+                    <li><a href="/shops">Tiendas</a></li>
+                    <li><a href="/api">API Documentation</a></li>
+                    <li class="dropdown">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown">Features <b class="caret"></b></a>
+                      <ul class="dropdown-menu">
+                        <li><a href="#">Products</a></li>
+                        <li><a href="#">Categories</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">It's comming</a></li>
+                      </ul>
+                    </li>
+                  </ul>
+                  <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#">Regístrate</a></li>
+                    <li><a href="#">Entrar</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Container -->
+        <div class="container">
+          <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+              <h2>¡Gestionando productos!</h2>
+              <ul class="list-group">
+                <li class="list-group-item"><a href="#create_product">Crear producto</a></li>
+                <li class="list-group-item"><a href="#products">Lista de productos</a></li>
+              </ul>
+            </div>
+            
+            <div class="col-md-8 col-md-offset-2" id="create_product">                    
+              <h3>Crea un producto</h3>
+              <p class="lead">Rellenar todo. No comprobados errores en interfaz web.</p>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <input type="file" id="files"/>
+                  <p id="status" class="help-block">Please select a file</p>
+                  <div class="thumbnail" id="preview">
+                    <div class="image-overlay">
+                      <img data-src="holder.js/100%x180" alt="100%x180" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzNTAiIGhlaWdodD0iMTgwIj48cmVjdCB3aWR0aD0iMzUwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iI2VlZSI+PC9yZWN0Pjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjE3NSIgeT0iOTAiIHN0eWxlPSJmaWxsOiNhYWE7Zm9udC13ZWlnaHQ6Ym9sZDtmb250LXNpemU6MjJweDtmb250LWZhbWlseTpBcmlhbCxIZWx2ZXRpY2Esc2Fucy1zZXJpZjtkb21pbmFudC1iYXNlbGluZTpjZW50cmFsIj4zNTB4MTgwPC90ZXh0Pjwvc3ZnPg==" style="height: 180px; width: 100%; display: block;">
+                    </div>            
+                  </div>
+                </div>
+              </div>              
+
+              <form role="form" method="POST" action="/submit_form/">
+                <input type="hidden" id="avatar_url" name="image" value="https://api-clickchic-img.s3.amazonaws.com/empty_product.jpg">
+                <input type="hidden" name="seller_id" value="44"><br>
+                <div class="form-group">
+                  <label for="model">Modelo</label>
+                  <input type="text" class="form-control" id="model" placeholder="Producto super chulo" name="model">
+                </div>
+                <div class="form-group">
+                  <label for="description">Descripción</label>
+                  <input type="text" class="form-control" id="description" placeholder="Esto es una descripción" name="description">
+                </div>
+                <div class="form-group">
+                  <label for="category">Categoría</label>
+                  <input type="text" class="form-control" id="category" placeholder="1 | 2 | 3 es un número" name="category">
+                </div>
+                <div class="form-group">
+                  <label for="units">Unidades</label>
+                  <input type="text" class="form-control" id="units" placeholder="Número de unidades. Debe ser un número" name="units">
+                </div>
+                <!-- 
+                faltan campos
+                -->
+
+                <button type="submit" class="btn btn-default">Submit</button>
+              </form>
+            </div>
+
+            <div class="clearfix"></div>
+            
+            <div class="col-md-8 col-md-offset-2" id="products">                    
+              <h3>Crea un producto</h3>
+              <p class="lead">En desarrollo.</p>
+
+              
+            </div>
+
+            <div class="clearfix"></div>
+
+          </div>
+        </div>
+        <!-- /container -->
+        
+        <!-- FOOTER
+    ================================================== -->  
+    <footer style="margin-top:80px;">
+      <div class="container">
+        <div class="row">
+          
+          <div class="col-md-3">
+            <h3>ClickChic</h3>
+            <p>Descubre cosas sorprendentes, colecciona las cosas que te gustan, cómpralo todo en un mismo sitio.</p>
+          </div>
+
+          <div class="col-md-3">
+            <dl>
+              <dt>ClickChic</dt>
+              <dd>
+                <ul>
+                  <li><a href="#">Qué es ClickChic</a></li>
+                  <li><a href="#">ClickChic donde sea</a></li>
+                  <li><a href="#">Hazte vendedor</a></li>
+                </ul>
+              </dd>
+            </dl>            
+          </div>
+
+          <div class="col-md-3">
+            <dl>
+              <dt>Ayuda</dt>
+              <dd>
+                <ul>
+                  <li><a href="#">Preguntas frecuentes</a></li>
+                  <li><a href="#">Términos de servicio</a></li>
+                  <li><a href="#">Política de privacidad</a></li>
+                  <li><a href="#">Contacta con nosotros</a></li>
+                </ul>
+              </dd>
+            </dl>
+          </div>
+
+          <div class="col-md-3">
+            <dl>
+              <dt>Recursos</dt>
+              <dd>
+                <ul>
+                  <li><a href="#">Apps para el móvil</a></li>
+                  <li><a href="#">Usa nuestra API</a></li>
+                  <li><a href="#">Consejos</a></li>
+                </ul>
+              </dd>
+            </dl>            
+          </div>
+          
+        </div>
+      </div>      
+    </footer>
+        
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/js/vendor/jquery-1.11.0.min.js"><\/script>')</script>
+    <script src="/js/vendor/bootstrap.min.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="/js/vendor/holder.js"></script>
+    <script type="text/javascript" src="/js/lodash.min.js"></script>
+    <script type="text/javascript" src="/js/s3upload.js"></script>
+
+    <script type="text/javascript">
+      function s3_upload(){
+        var s3upload = new S3Upload({
+          file_dom_selector: '#files',
+          s3_sign_put_url: '/api/v1/sign_s3',
+          onProgress: function(percent, message) {
+              $('#status').html('Upload progress: ' + percent + '% ' + message);
+          },
+          onFinishS3Put: function(public_url) {
+              $('#status').html('Upload completed. Uploaded to: '+ public_url);
+              $("#avatar_url").val(public_url);
+              $("#preview").html('<img src="'+public_url+'" style="width:300px;" />');
+          },
+          onError: function(status) {
+              $('#status').html('Upload error: ' + status);
+          }
+        });
+      }
+
+      $(document).ready(function() {
+          $('#files').on("change", s3_upload);
+      });
+    </script>
+
+  </body>
+</html>

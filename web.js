@@ -26,13 +26,8 @@ router.use(function(req, res, next) {
 	next(); // make sure we go to the next routes and don't stop here
 });
 
-routes = require('./config/routes')(app);
-
-app.get('/', function(req, res) {
-  res.render('account.html');
-});
-
-
+routes = require('./config/api_routes')(app);
+routes = require('./config/web_routes')(app);
 
 var uristring =
 process.env.MONGOLAB_URI ||

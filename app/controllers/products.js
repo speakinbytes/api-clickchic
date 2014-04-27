@@ -1,3 +1,7 @@
+// This document is divided in two sections:
+// -> Api routes
+// -> Web routes
+
   var Product = require('../models/product.js');
   var log     = require('../../libs/log')(module);
   var crypto  = require('crypto');
@@ -6,9 +10,13 @@
   //     client = redis.createClient();
   // var ttl    = 60;
 
+//
+// API ROUTES
+//
+
   /**
- * Find article by id
- */
+  * Find article by id
+  */
   exports.product = function(req, res, next, id) {
     var User = mongoose.model('User');
 
@@ -20,9 +28,9 @@
     });
   };
 
-  //GET - /products --> Return all products in the DB
+  //GET - /api/v1/products --> Return all products in the DB
   exports.index = function(req, res) {
-    log.info("GET - /products");
+    log.info("GET - /api/v1/products");
   	Product.find(function(err, products) {
       if (products.length == 0) {
         res.statusCode = 204;
@@ -39,9 +47,9 @@
   	});
   };
 
-  // POST - /products --> Return all search products in the DB
+  // POST - /api/v1/products --> Return all search products in the DB
   exports.searchIndex = function(req, res) {
-    log.info("GET - /products");
+    log.info("POST - /api/v1/products - search");
     
     if (req.body.seller_id) {
       Product.find({ seller_id: req.body.seller_id }, function(err, products) {
@@ -61,9 +69,9 @@
     }
   };
   
-  // GET - /product/{id} --> Return a Product with specified ID
+  // GET - /api/v1/product/{id} --> Return a Product with specified ID
   exports.show = function(req, res) {
-    log.info("GET - /tshirt/:id");
+    log.info("GET - /api/v1/product/:id");
     Product.findById(req.params.id, function(err, product) {
       if(!product) {
         res.statusCode = 404;
@@ -87,8 +95,8 @@
     /*
      * Load the S3 information from the environment variables.
      */
-    var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
-    var AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
+    var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY_ID;
+    var AWS_SECRET_KEY = process.env.AWS_SECRET_ACCESS_KEY;
     var S3_BUCKET = process.env.S3_BUCKET
 
     console.log("S3_BUCKET " + S3_BUCKET);
@@ -99,30 +107,32 @@
     console.log("object_name" + object_name);
     console.log("mime_type" + mime_type);
 
+    // PENDING -> CHECK FORMATS
+
     var now = new Date();
     var expires = Math.ceil((now.getTime() + 10000)/1000); // 10 seconds from now
     var amz_headers = "x-amz-acl:public-read";  
 
-    var put_request = "PUT\n\n"+mime_type+"\n"+expires+"\n"+amz_headers+"\n/"+S3_BUCKET+"/"+object_name;
+    var put_request = "PUT\n\n"+mime_type+"\n"+expires+"\n"+amz_headers+"\n/"+S3_BUCKET+"/products/"+object_name;
 
-    var signature = crypto.createHmac('sha1', "kR5WoDk4mqAmnsURtFKZmW5untsm+00GgE5zEjoN").update(put_request).digest('base64');
+    var signature = crypto.createHmac('sha1', AWS_SECRET_KEY).update(put_request).digest('base64');
     signature = encodeURIComponent(signature.trim());
     signature = signature.replace('%2B','+');
 
     var url = 'https://'+S3_BUCKET+'.s3.amazonaws.com/'+object_name;
 
     var credentials = {
-        signed_request: url+"?AWSAccessKeyId="+"AKIAJMMRYRZ6JHR55C3Q"+"&Expires="+expires+"&Signature="+signature,
+        signed_request: url+"?AWSAccessKeyId="+AWS_ACCESS_KEY+"&Expires="+expires+"&Signature="+signature,
         url: url
     };
     res.write(JSON.stringify(credentials));
     res.end();
 
   }
-  // POST - /product --> Insert a new Product in the DB
+  // POST - /api/v1/product --> Insert a new Product in the DB
   // Params - model, description, seller_id, category_id, subcategory_id, price, units, colour, gender, size
   exports.create = function(req, res) {
-    log.info('POST - /product --> Creating product');
+    log.info('POST - /api/v1/product --> Creating product');
     log.info('Params - model: %s, description: %s, seller_id: %s, category_id: %s, subcategory_id: %s, price: %s, units: %s, colour: %s, gender: %s, size: %s', 
                        req.body.model, req.body.description, req.body.seller_id, 
                        req.body.category_id, req.body.subcategory_id, req.body.price, 
@@ -142,7 +152,7 @@
       colour:         req.body.colour, 
       gender:         req.body.gender, 
       size:           req.body.size,   
-      images:         { kind: "thumbnail", url: req.body.avatar_url }
+      images:         { kind: "thumbnail", url: req.body.image }
     });
 
     product.save(function(err) {
@@ -436,6 +446,31 @@
   //   });
   // };
 
+//
+// WEB ROUTES
+//
 
+  // GET - /products --> Return all products in the DB
+  exports.web_index = function(req, res) {
+    log.info("GET - /products");
+    res.render('products/products.html');
+  };
 
+  // GET - /shops --> Return all shops in the DB
+  exports.web_shops = function(req, res) {
+    log.info("GET - /shops");
+    res.render('shops/shops.html');
+  };
+
+  // GET - /shop/:id --> Return all shops in the DB
+  exports.web_shop = function(req, res) {
+    log.info("GET - /shop/:id");
+    res.render('shops/shop_1.html');
+  };
+
+  // GET - /product/new_product
+  exports.web_new_product = function(req, res) {
+    log.info("GET - /product/new_product");
+    res.render('products/create.html');
+  };
 
