@@ -1,5 +1,6 @@
   var Product = require('../models/product.js');
   var log     = require('../../libs/log')(module);
+  var crypto  = require('crypto');
   // var WasHot = require('../models/washot.js');
   // var redis  = require("redis"),
   //     client = redis.createClient();
@@ -60,7 +61,6 @@
     }
   };
   
-
   // GET - /product/{id} --> Return a Product with specified ID
   exports.show = function(req, res) {
     log.info("GET - /tshirt/:id");
@@ -81,16 +81,25 @@
     });
   };
 
-  exports.prueba = function(req, res) {
-    log.info('POST - /product --> IMAGES product');
-    
+  exports.sign_s3 = function(req, res) {
+    log.info('GET - /product/sign_s3 --> IMAGES upload');
 
+    /*
+     * Load the S3 information from the environment variables.
+     */
     var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
     var AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
     var S3_BUCKET = process.env.S3_BUCKET
 
+    console.log("ACCES KEY" + AWS_ACCESS_KEY);
+    console.log("SECRET KEY" + AWS_SECRET_KEY);
+    console.log("S3_BUCKET" + S3_BUCKET);
+
     var object_name = req.query.s3_object_name;
     var mime_type = req.query.s3_object_type;
+
+    console.log("object_name" + object_name);
+    console.log("mime_type" + mime_type);
 
     var now = new Date();
     var expires = Math.ceil((now.getTime() + 10000)/1000); // 10 seconds from now
@@ -134,7 +143,8 @@
       units:          req.body.units, 
       colour:         req.body.colour, 
       gender:         req.body.gender, 
-      size:           req.body.size      
+      size:           req.body.size,   
+      images:         { kind: "thumbnail", url: req.body.avatar_url }
     });
 
     product.save(function(err) {

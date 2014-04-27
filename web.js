@@ -14,6 +14,9 @@ var mongoose  			= require("mongoose");
 app.use(logfmt.requestLogger());
 app.use(bodyParser()); 						// pull information from html in POST
 app.use(methodOverride()); 					// simulate DELETE and PUT
+app.engine('html', require('ejs').renderFile);
+app.set('views', __dirname + '/app/views');
+app.use(express.static(path.join(__dirname, 'public')));
 
 var router = express.Router(); 				// get an instance of the express Router
 // middleware to use for all requests
@@ -26,13 +29,10 @@ router.use(function(req, res, next) {
 routes = require('./config/routes')(app);
 
 app.get('/', function(req, res) {
-  res.send('Hello World!');
+  res.render('account.html');
 });
 
-// var port = Number(process.env.PORT || 5000);
-// app.listen(port, function() {
-//   console.log("Listening on " + port);
-// });
+
 
 var uristring =
 process.env.MONGOLAB_URI ||

@@ -21,7 +21,9 @@
     "winston": "0.7.x",
     "async": "~0.2.8",
     "redis": "~0.10.1",
-    "mongodb": "^1.4.2"
+    "mongodb": "^1.4.2",
+    "ejs": "*",
+    "crypto": "*"
   },
   "engines": {
     "node": "0.10.x"
