@@ -18,11 +18,12 @@ app.engine('html', require('ejs').renderFile);
 app.set('views', __dirname + '/app/views');
 app.use(express.static(path.join(__dirname, 'public')));
 
-var router = express.Router(); 				// get an instance of the express Router
+var router = express.Router(); 
+
 // middleware to use for all requests
 router.use(function(req, res, next) {
 	// do logging
-	console.log('Something is happening.');
+	log.info('Something is happening.');
 	next(); // make sure we go to the next routes and don't stop here
 });
 
@@ -34,7 +35,9 @@ process.env.MONGOLAB_URI ||
 process.env.MONGOHQ_URL ||
 config.get('mongoose:uri');
 
-console.log(process.env.MONGOLAB_URI + " asdf " + process.env.MONGOHQ_URL);
+log.info(process.env.MONGOLAB_URI + " asdf " + process.env.MONGOHQ_URL);
+
+log.info("..." + (new Date).getTime());
 
 var port  = process.env.PORT || config.get('port');
 var ip    = process.env.IP || config.get('localhost');

@@ -44,8 +44,8 @@
                     <li class="dropdown">
                       <a href="#" class="dropdown-toggle" data-toggle="dropdown">Features <b class="caret"></b></a>
                       <ul class="dropdown-menu">
-                        <li><a href="#">Products</a></li>
-                        <li><a href="#">Categories</a></li>
+                        <li><a href="/products/new">Products</a></li>
+                        <li><a href="/categories">Categories</a></li>
                         <li class="divider"></li>
                         <li><a href="#">It's comming</a></li>
                       </ul>
@@ -89,8 +89,8 @@
                 </div>
               </div>              
 
-              <form role="form" method="POST" action="/api/v1/product/create/">
-                <input type="hidden" id="avatar_url" name="image" value="https://api-clickchic-img.s3.amazonaws.com/empty_product.jpg">
+              <form role="form" method="POST" action="/product">
+                <input type="hidden" id="image" name="image" value="https://api-clickchic-img.s3.amazonaws.com/empty_product.jpg">
                 <input type="hidden" name="seller_id" value="44"><br>
                 <div class="form-group">
                   <label for="model">Modelo</label>
@@ -98,11 +98,18 @@
                 </div>
                 <div class="form-group">
                   <label for="description">Descripción</label>
-                  <input type="text" class="form-control" id="description" placeholder="Esto es una descripción" name="description">
+                  <textarea type="text" class="form-control" rows="3" id="description" placeholder="Esto es una descripción" name="description"></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="price">Precio</label>
+                  <input type="text" class="form-control" id="price" placeholder="Precio. Debe ser un número" name="price">
                 </div>
                 <div class="form-group">
                   <label for="category">Categoría</label>
-                  <input type="text" class="form-control" id="category" placeholder="1 | 2 | 3 es un número" name="category">
+                  <select class="form-control" id="categories" name="category_id">
+                    
+                  </select>
+                  
                 </div>
                 <div class="form-group">
                   <label for="units">Unidades</label>
@@ -118,11 +125,11 @@
 
             <div class="clearfix"></div>
             
-            <div class="col-md-8 col-md-offset-2" id="products">                    
-              <h3>Crea un producto</h3>
-              <p class="lead">En desarrollo.</p>
-
-              
+            <div class="col-md-8 col-md-offset-2">                    
+              <h3>Lista de productos</h3>
+              <div class="list-group" id="products">
+                
+              </div>
             </div>
 
             <div class="clearfix"></div>
@@ -204,8 +211,8 @@
           },
           onFinishS3Put: function(public_url) {
               $('#status').html('Upload completed. Uploaded to: '+ public_url);
-              $("#avatar_url").val(public_url);
-              $("#preview").html('<img src="'+public_url+'" style="width:300px;" />');
+              $("#image").val(public_url);
+              $("#preview").html('<img src="'+public_url+'" />');
           },
           onError: function(status) {
               $('#status').html('Upload error: ' + status);
@@ -216,6 +223,81 @@
       $(document).ready(function() {
           $('#files').on("change", s3_upload);
       });
+    </script>
+
+    <script type="text/javascript">
+      $(function(){
+        $.ajax({
+          url: "/api/v1/categories",
+          type: "GET",
+          dataType: "json",
+          // dataType: "json" --> Hace implicitamente --> data = JSON.parse(data) -> De cadena de texto a json, a objeto
+          // data = JSONstringify(data); --> De json a cadena de texto.
+          beforeSend: function(){
+            
+          },
+          success: function(data, textStatus, xhr){
+            // console.log(data);
+            if (xhr.status == 200) {
+              $.each(data.categories, function(i, item) {
+                $('#categories').append('<option value="'+item._id+'">'+item.name_es+'</option>');
+                
+              });
+            }
+            if (xhr.status == 204) {
+              $('#categories').append('Crea categorías urgentemente');
+            }
+            
+            
+          },
+          error : function(){
+            alert("Error de servidor");
+          },
+          complete: function(){
+           
+          }
+        });
+
+        $.ajax({
+          url: "/api/v1/products",
+          type: "GET",
+          dataType: "json",
+          // dataType: "json" --> Hace implicitamente --> data = JSON.parse(data) -> De cadena de texto a json, a objeto
+          // data = JSONstringify(data); --> De json a cadena de texto.
+          beforeSend: function(){
+            
+          },
+          success: function(data, textStatus, xhr){
+            console.log(data);
+            if (xhr.status == 200) {
+              $.each(data.products, function(i, item) {
+                $('#products').append('<a href="#" class="list-group-item">'
+                  + '<span class="item-arrow glyphicon glyphicon-chevron-right pull-right"></span>'
+                  + '<img class="image-detail pull-left" style="width: 150px; height: 140px;" src="'+item.images[0]+'" alt="Image Product" >'
+                  + '<p class="item-detail">' + item.model +' <br> ' + item.description + ' <br> Precio: ' + item.price + '</p>'
+                  + '<div class="clearfix"></div>'
+                  + '</a>');
+                
+              });                      
+                
+            }
+            if (xhr.status == 204) {
+              $('#products').append('Crea productos urgentemente');
+            }
+            
+            
+          },
+          error : function(){
+            alert("Error de servidor");
+          },
+          complete: function(){
+           
+          }
+        });
+      });
+      
+
+
     </script>
 
   </body>

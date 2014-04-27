@@ -18,6 +18,12 @@ module.exports = function(app) {
     app.get('/products', products.web_index);
     app.get('/products/new', products.web_new_product);
     app.get('/sign_s3', products.sign_s3);
+    app.post('/product', products.web_create);
+
+    // Categories Routes
+    var categories = require('../app/controllers/categories');
+    app.get('/categories', categories.web_index);
+    app.post('/category', categories.web_create);
 
     // Shop routes
     app.get('/shops', products.web_shops);
