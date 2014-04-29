@@ -231,9 +231,9 @@
     /*
      * Load the S3 information from the environment variables.
      */
-    var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY_ID || "AKIAJMMRYRZ6JHR55C3Q";
-    var AWS_SECRET_KEY = process.env.AWS_SECRET_ACCESS_KEY || "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";
-    var S3_BUCKET = process.env.S3_BUCKET || "api-clickchic-img";
+    var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY_ID;
+    var AWS_SECRET_KEY = process.env.AWS_SECRET_ACCESS_KEY;
+    var S3_BUCKET = process.env.S3_BUCKET;
 
     var object_name = req.query.s3_object_name;
     var mime_type = req.query.s3_object_type;
