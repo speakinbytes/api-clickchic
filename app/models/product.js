@@ -18,6 +18,9 @@ var Product = new Schema({
                     enum: ['H', 'M'] },
   size:           { type: String, 
                     enum: ['S', 'M', 'L', 'XL', 'XXL'] },
+  views:          { type: Number },
+  likes:          { type: Number },
+  comments:       { type: Number },
   created_at:     { type: Date, default: Date.now },
   modified_at:    { type: Date } 
 });

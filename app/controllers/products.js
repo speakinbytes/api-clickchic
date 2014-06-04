@@ -38,7 +38,7 @@
         return res.send("Prueba");
       }
   		if(!err) {
-  			res.send({ "products" : products.toString("utf8") });
+  			res.send({ "products" : products });
   		} else {
         res.statusCode = 500;
   			log.error('Internal error(%d): %s',res.statusCode,err.message);
