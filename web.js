@@ -33,12 +33,15 @@ routes = require('./config/web_routes')(app);
 var uristring =
 process.env.MONGOLAB_URI ||
 process.env.MONGOHQ_URL ||
-config.get('mongoose:uri');
+'mongodb://localhost/HelloMongoose';
+//config.get('mongoose:uri');
 
 var port  = process.env.PORT || config.get('port');
 var ip    = process.env.IP || config.get('localhost');
+
 // Conexión
 mongoose.connect(uristring, function(err, res) {
+
   if(err) {
     console.log('ERROR connecting to: ' + uristring + '. ' + err);
   } 
@@ -51,11 +54,14 @@ mongoose.connect(uristring, function(err, res) {
   }
 });
 // var connectWithRetry = function() {
-//   return mongoose.connect(mongoUrl, function(err) {
+//   console.log("......");
+//   return mongoose.connect(uristring, function(err) {
 //     if (err) {
 //       console.error('Failed to connect to mongo on startup - retrying in 5 sec', err);
 //       setTimeout(connectWithRetry, 5000);
 //     }
+//     else console.log("...fsda");
 //   });
+
 // };
 // connectWithRetry();

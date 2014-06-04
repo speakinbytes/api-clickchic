@@ -2,7 +2,7 @@
     "port" : 3000,
     "mongoose": {
         "uri"	: "mongodb://heroku_app24483800:5un06opqjolsatbcshshkm44it@ds033487.mongolab.com:33487/heroku_app24483800",
-        "port" 	: 27017
+        "port" 	: 33487
     },
     "localhost" : "localhost",
     "security": {

@@ -38,7 +38,7 @@
         return res.send("Prueba");
       }
   		if(!err) {
-  			res.send({ "products" : products });
+  			res.send({ "products" : products.toString("utf8") });
   		} else {
         res.statusCode = 500;
   			log.error('Internal error(%d): %s',res.statusCode,err.message);
@@ -112,9 +112,19 @@
       units:          req.body.units, 
       colour:         req.body.colour, 
       gender:         req.body.gender, 
-      size:           req.body.size,   
-      images:         { kind: "thumbnail", url: req.body.image }
+      size:           req.body.size
     });
+
+    if (req.body.images instanceof Array) { 
+      console.log("ARRAY");
+      req.body.images.forEach(function(element, index, array){
+        product.images.push( element );
+      });
+    }
+    else
+    {
+      product.images.push( req.body.images );      
+    }    
 
     product.save(function(err) {
       if(!err) {
@@ -135,8 +145,7 @@
     });
   };
 
-
-  // //PUT - Update a register already exists
+   // //PUT - Update a register already exists
   // updateTshirt = function(req, res) {
   //   log.info("PUT - /tshirt/:id");
   //   console.log(req.body);
