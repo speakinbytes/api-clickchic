@@ -7,9 +7,9 @@ var UserSchema = mongoose.Schema({
     firstName:  String,
     lastName:   String,
     userName:   String, 
-    email:      String,
+    email:      {type: String},
     provider:   String,
-    provider_id:{type: String, unique: true}, 
+    provider_id:{type: String}, 
     photo:      String, 
     salt:       String,
     hashed_password: String,
@@ -31,10 +31,12 @@ var UserSchema = mongoose.Schema({
     createdAt    : {type: Date, default: Date.now}
 });
 
-Product.path('userName').required(true);
-Product.path('email').required(true);
-Product.path('hashed_password').required(true);
 
 
-var User = mongoose.model("User", UserSchema);
-module.exports = User;
+UserSchema.path('userName').required(true);
+UserSchema.path('email').required(true);
+UserSchema.path('hashed_password').required(true);
+UserSchema.path('role').required(true);
+UserSchema.path('email').index({ unique: true });
+
+module.exports = mongoose.model('User', UserSchema);

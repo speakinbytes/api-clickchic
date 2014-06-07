@@ -1,5 +1,10 @@
 module.exports = function(app) {
 
+    // Users Routes
+    var users = require('../app/controllers/users');
+    app.post('/api/v1/signup', users.signup);
+    app.post('/api/v1/signin', users.signin);
+
     // Products Routes
     var products = require('../app/controllers/products');
     app.get('/api/v1/products', products.index);

@@ -23,7 +23,9 @@
     "redis": "~0.10.1",
     "mongodb": "^1.4.2",
     "ejs": "*",
-    "crypto": "*"
+    "crypto": "*",
+    "passport" : "*",
+    "passport-local" : "*"
   },
   "engines": {
     "node": "0.10.x"
