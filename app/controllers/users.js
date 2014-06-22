@@ -116,11 +116,12 @@ exports.register = function(req, res) {
         log.error('Validation error(%d): %s',res.statusCode,err.message);
         res.send( { status: "error", error_msg: 'Validation error('+res.statusCode+'): '+err.message } );
       } else {
-        res.statusCode = 500;
         if (err.code == 11000) {
+          res.statusCode = 200;
           log.error('Duplicate key');
           res.send({ status: "error", error_msg: 'Duplicate key' });
         } else {
+          res.statusCode = 500;
           log.error('Internal error(%d): %s',res.statusCode,err.message);
           res.send({ status: "error", error_msg: 'Server error' });
         } 

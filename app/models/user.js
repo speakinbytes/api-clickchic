@@ -9,7 +9,7 @@ var UserSchema = mongoose.Schema({
     name:       String,
     lastName:   String,
     userName:   String, 
-    email:      String,
+    email:      { type: String, unique: true },
     provider:   String, 
     photo:      String, 
     salt:       String,
