@@ -20,13 +20,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 var router = express.Router(); 
 
-// middleware to use for all requests
-router.use(function(req, res, next) {
-	// do logging
-	log.info('Something is happening.');
-	next(); // make sure we go to the next routes and don't stop here
-});
-
 routes = require('./config/api_routes')(app);
 routes = require('./config/web_routes')(app);
 
@@ -34,7 +27,21 @@ var uristring =
 process.env.MONGOLAB_URI ||
 process.env.MONGOHQ_URL ||
 'mongodb://localhost/HelloMongoose';
-//config.get('mongoose:uri');
+
+// Handle errors
+app.use(function(req, res, next){
+    res.status(404);
+    log.debug('Not found URL: %s',req.url);
+    res.send({ error: 'Not found' });
+    return;
+});
+
+app.use(function(err, req, res, next){
+    res.status(err.status || 500);
+    log.error('Internal error(%d): %s',res.statusCode,err.message);
+    res.send({ error: err.message });
+    return;
+});
 
 var port  = process.env.PORT || config.get('port');
 var ip    = process.env.IP || config.get('localhost');

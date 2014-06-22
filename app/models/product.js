@@ -6,7 +6,10 @@ var Images = require('./image.js')
 var Product = new Schema({
   model:          { type: String },
   description:    { type: String },
-  seller_id:      { type: String },
+  seller_id:      {
+                    type: Schema.ObjectId,
+                    ref: 'User'
+                  },
   category_id:    { type: String },
   subcategory_id: { type: String },
   price:          { type: Number },
@@ -18,9 +21,18 @@ var Product = new Schema({
                     enum: ['H', 'M'] },
   size:           { type: String, 
                     enum: ['S', 'M', 'L', 'XL', 'XXL'] },
-  views:          { type: Number },
-  likes:          { type: Number },
-  comments:       { type: Number },
+  views_count:    { type: Number },
+  likes_count:    { type: Number },
+  likes:          [ {
+                      user_id: {type: Schema.ObjectId },
+                      username: String
+                    }],
+  comments:       [ { 
+                      user_id: { type: Schema.ObjectId },
+                      username: String,
+                      comment: String
+                    } ],
+  comments_count: { type: Number },
   created_at:     { type: Date, default: Date.now },
   modified_at:    { type: Date } 
 });

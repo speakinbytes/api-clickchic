@@ -12,20 +12,22 @@
   "author": "SpeakinBytes",
   "license": "MIT",
   "dependencies": {
-    "logfmt": "^1.1.2",
-    "express": "^4.0.0",
+    "async": "~0.2.8",
     "body-parser": "~1.0.0",
+    "crypto": "*",
+    "ejs": "*",
+    "express": "^4.0.0",
+    "jwt-simple": "^0.2.0",
+    "logfmt": "^1.1.2",
     "method-override": "~1.0.0",
+    "mongodb": "^1.4.2",
     "mongoose": "3.6.x",
     "nconf": "0.6.x",
-    "winston": "0.7.x",
-    "async": "~0.2.8",
+    "passport": "*",
+    "passport-local": "*",
     "redis": "~0.10.1",
-    "mongodb": "^1.4.2",
-    "ejs": "*",
-    "crypto": "*",
-    "passport" : "*",
-    "passport-local" : "*"
+    "underscore": "^1.6.0",
+    "winston": "0.7.x"
   },
   "engines": {
     "node": "0.10.x"

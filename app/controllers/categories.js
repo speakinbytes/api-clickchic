@@ -4,7 +4,7 @@
 
   var Category = require('../models/category.js');
   var log     = require('../../libs/log')(module);
-
+  var User    = require('../models/user.js');
 //
 // API ROUTES
 //
@@ -16,14 +16,14 @@
       if (categories.length == 0) {
         res.statusCode = 204;
         log.info('Status(%d): %s',res.statusCode, "No find categories");        
-        return res.send("No find categories");
+        return res.send( { status: "error", error_msg: "No find categories" });
       }
   		if(!err) {
-  			res.json({ "categories" : categories });
+  			res.json({ status: "ok", "categories" : categories });
   		} else {
         res.statusCode = 500;
   			log.error('Internal error(%d): %s',res.statusCode,err.message);
-        res.send({ error: 'Server error' });
+        res.send({ status: "error", error: 'Server error' });
   		}
   	});
   };
@@ -34,7 +34,14 @@
     log.info('POST - /api/v1/category --> Creating category');
     log.info('Body - name_es: %s, name_en: %s, name_cat: %s', 
                        req.body.name_es, req.body.name_en, req.body.name_cat );
-    log.info(req.body[0]);
+    
+    // Needs all params
+    if (!req.body.token|| 
+        !req.body.name_es || 
+        !req.body.name_en) {
+      res.statusCode = 200;
+      return res.send({ status: "error", error_msg: "You need more inputs! Remember: token, name_es, name_en." });
+    };
 
     var category = new Category({
       name_es:    req.body.name_es,  
@@ -42,21 +49,30 @@
       name_cat:   req.body.name_cat,     
     });
 
-    category.save(function(err) {
-      if(!err) {
-        log.info("category created");
-        res.statusCode = 201;
-        res.send({ id: category.id});
+    User.findOne( {token : req.body.token} , function(err, user){
+      console.log(user);
+      if(!err && user && (user.role == "admin")) {
+        category.save(function(err) {
+          if(!err) {
+            log.info("category created");
+            res.statusCode = 201;
+            res.send({ status: "ok", category: category });
+          } else {
+            if(err.name == 'ValidationError') {
+              res.statusCode = 400;
+              log.error('Validation error(%d): %s',res.statusCode,err.message);
+              res.send( { status: "error", error_msg: 'Validation error('+res.statusCode+'): '+err.message });
+            } else {
+              res.statusCode = 500;
+              log.error('Internal error(%d): %s',res.statusCode,err.message);
+              res.send({ error: 'Server error' });
+            }
+          }
+        });
       } else {
-        if(err.name == 'ValidationError') {
-          res.statusCode = 400;
-          log.error('Validation error(%d): %s',res.statusCode,err.message);
-          res.send('Validation error('+res.statusCode+'): '+err.message);
-        } else {
-          res.statusCode = 500;
-          log.error('Internal error(%d): %s',res.statusCode,err.message);
-          res.send({ error: 'Server error' });
-        }
+        log.error("Invalid user");
+        res.statusCode = 200;
+        res.send( { status: "error", error_msg: "Invalid user"} );
       }
     });
   };
@@ -67,19 +83,27 @@
     return Category.findById(req.params.id, function(err, category) {
       if(!category) {
         res.statusCode = 404;
-        return res.send({ error: 'Not found' });
+        return res.send({ status: "error", error_msg: 'Not found' });
       }
 
-      category.remove(function(err) {
-        if(!err) {
-          console.log('Removed category');
-          res.send({ status: 'OK' });
+      User.findOne( {token : req.body.token} , function(err, user){
+        if(!err && user && (user.role == "admin")) {
+          category.remove(function(err) {
+            if(!err) {
+              console.log('Removed category');
+              res.send({ status: 'ok' });
+            } else {
+              res.statusCode = 500;
+              console.log('Internal error(%d): %s',res.statusCode,err.message);
+              res.send({ status: "error", error_msg: 'Server error' });
+            }
+          });
         } else {
-          res.statusCode = 500;
-          console.log('Internal error(%d): %s',res.statusCode,err.message);
-          res.send({ error: 'Server error' });
+          log.error("Invalid user");
+          res.statusCode = 200;
+          res.send( { status: "error", error_msg: "Invalid user"} );
         }
-      })
+      });
     });
   }
 

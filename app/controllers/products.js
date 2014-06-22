@@ -5,6 +5,7 @@
   var Product = require('../models/product.js');
   var log     = require('../../libs/log')(module);
   var crypto  = require('crypto');
+  var User    = require('../models/user.js');
   // var WasHot = require('../models/washot.js');
   // var redis  = require("redis"),
   //     client = redis.createClient();
@@ -30,42 +31,61 @@
 
   //GET - /api/v1/products --> Return all products in the DB
   exports.index = function(req, res) {
-    log.info("GET - /api/v1/products");
-  	Product.find(function(err, products) {
-      if (products.length == 0) {
-        res.statusCode = 204;
-        log.info('Status(%d): %s',res.statusCode, "No find products. :(");        
-        return res.send("Prueba");
-      }
-  		if(!err) {
-  			res.send({ "products" : products });
-  		} else {
-        res.statusCode = 500;
-  			log.error('Internal error(%d): %s',res.statusCode,err.message);
-        res.send({ error: 'Server error' });
-  		}
-  	});
-  };
+    log.info("POST - /api/v1/products");
 
-  // POST - /api/v1/products --> Return all search products in the DB
-  exports.searchIndex = function(req, res) {
-    log.info("POST - /api/v1/products - search");
-    
-    if (req.body.seller_id) {
-      Product.find({ seller_id: req.body.seller_id }, function(err, products) {
-        if (products.length == 0) {
-          res.statusCode = 204;
-          log.info('Status(%d): %s',res.statusCode, "No find products");        
-          return res.send([]);
+    if (req.body.token && req.body.seller_id) {
+      res.statusCode = 200;
+      res.send( { status: "error", error_msg: "send only toker or seller_id, not both."} );
+    };
+
+    var query = {};
+
+    if (req.body.category_id) { query["category_id"] = req.body.category_id };
+
+    if (req.body.token || req.body.seller_id) {
+      var userQuery;
+      if (req.body.token) { userQuery = { token: req.body.token }; }
+      if (req.body.seller_id) { userQuery = { _id: req.body.seller_id }; };
+      User.findOne( userQuery , function(err, user){
+        if(!err && user) {
+          query["seller_id"] = user._id;
+          Product.find(query, function(err, products) {
+            if (products.length == 0) {
+              res.statusCode = 200;
+              log.info('Status(%d): %s',res.statusCode, "No find products. :(");        
+              return res.send( { status: "error", error_msg: "Not products." });
+            }
+            if(!err) {
+              res.send({ status: "ok", "products" : products });
+            } else {
+              res.statusCode = 500;
+              log.error('Internal error(%d): %s',res.statusCode,err.message);
+              res.send({ error: 'Server error' });
+            }
+          });
         }
-        if(!err) {
-          res.send({ "products" : products });
-        } else {
-          res.statusCode = 500;
-          log.error('Internal error(%d): %s',res.statusCode,err.message);
-          res.send({ error: 'Server error' });
+        else {
+          res.statusCode = 200;
+          res.send( { status: "error", error_msg: "Not user."} );
         }
       });
+    }
+    else {
+
+    	Product.find(query, function(err, products) {
+        if (products.length == 0) {
+          res.statusCode = 200;
+          log.info('Status(%d): %s',res.statusCode, "No find products. :(");        
+          return res.send( { status: "error", error_msg: "Not products." });
+        }
+    		if(!err) {
+    			res.send({ status: "ok", "products" : products });
+    		} else {
+          res.statusCode = 500;
+    			log.error('Internal error(%d): %s',res.statusCode,err.message);
+          res.send({ error: 'Server error' });
+    		}
+    	});
     }
   };
   
@@ -74,17 +94,26 @@
     log.info("GET - /api/v1/product/:id");
     Product.findById(req.params.id, function(err, product) {
       if(!product) {
-        res.statusCode = 404;
+        res.statusCode = 200;
         log.info('Status(%d): %s',res.statusCode, "No find product"); 
-        return res.send({ error: 'Not found' });
+        return res.send({ status: "error", error_msg: 'Not found' });
       }
       if(!err) {
-        res.statusCode = 200;
-        res.send({ product:product });
+
+        product.views_count = product.views_count + 1;
+        product.save(function(err) {
+          if(!err) {
+            res.statusCode = 200;
+            res.send({ status: "ok", product:product });
+          } else {
+            res.statusCode = 200;
+            res.send( { status: "error", error_msg: "Imposible show product now! Try again!"} );
+          }
+        });
       } else {
         res.statusCode = 500;
         log.error('Internal error(%d): %s',res.statusCode,err.message);
-        res.send({ error: 'Server error' });
+        res.send({ status: "error", error_msg: 'Server error' });
       }
     });
   };
@@ -93,59 +122,84 @@
   // POST - /api/v1/product --> Insert a new Product in the DB
   // Params - model, description, seller_id, category_id, subcategory_id, price, units, colour, gender, size
   exports.create = function(req, res) {
-    log.info('POST - /api/v1/product --> Creating product');
+    log.info('POST - /api/v1/product --> Creating product by user token: ' + req.body.token);
     log.info('Params - model: %s, description: %s, seller_id: %s, category_id: %s, subcategory_id: %s, price: %s, units: %s, colour: %s, gender: %s, size: %s', 
                        req.body.model, req.body.description, req.body.seller_id, 
                        req.body.category_id, req.body.subcategory_id, req.body.price, 
                        req.body.units, req.body.colour, req.body.gender, req.body.size );
 
-    // var userId = req.user.id;
-    // console.log("--->" + userId);
+    // Needs all params
+    if (!req.body.token|| 
+        !req.body.model || 
+        !req.body.description || 
+        !req.body.price || 
+        !req.body.category_id ||
+        !req.body.units ) {
+      res.statusCode = 200;
+      return res.send({ status: "error", error_msg: "You need more inputs! Remember: token, model, description, price, category_id, units." });
+    };
 
-    var product = new Product({
-      model:          req.body.model,
-      description:    req.body.description,
-      seller_id:      req.body.seller_id,
-      category_id:    req.body.category_id, 
-      subcategory_id: req.body.subcategory_id, 
-      price:          req.body.price,
-      units:          req.body.units, 
-      colour:         req.body.colour, 
-      gender:         req.body.gender, 
-      size:           req.body.size
-    });
 
-    if (req.body.images instanceof Array) { 
-      console.log("ARRAY");
-      req.body.images.forEach(function(element, index, array){
-        product.images.push( element );
-      });
-    }
-    else
-    {
-      product.images.push( req.body.images );      
-    }    
+    User.findOne( {token : req.body.token} , function(err, user){
+      if(!err && user && user.role == "seller") {
+        var product = new Product();
 
-    product.save(function(err) {
-      if(!err) {
-        log.info("product created");
-        res.statusCode = 201;
-        res.send({ id: product.id});
-      } else {
-        if(err.name == 'ValidationError') {
-          res.statusCode = 400;
-          log.error('Validation error(%d): %s',res.statusCode,err.message);
-          res.send('Validation error('+res.statusCode+'): '+err.message);
-        } else {
-          res.statusCode = 500;
-          log.error('Internal error(%d): %s',res.statusCode,err.message);
-          res.send({ error: 'Server error' });
+        product.seller_id = user;
+        product.comments_count = 0;
+        product.views_count = 0;
+        product.likes_count = 0;
+
+        // Note: Look for put comments or likes
+        // product.comments.push({ user_id: "53a68ebc6be182a069000001", username: "Pepe", comment: "Esto es un comentario" });
+
+        if (req.body.model != null) product.model = req.body.model;      
+        if (req.body.description != null) product.description = req.body.description;
+        if (req.body.category_id != null) product.category_id = req.body.category_id;
+        if (req.body.subcategory_id != null) product.subcategory_id = req.body.subcategory_id;
+        if (req.body.price != null) product.price = req.body.price;
+        if (req.body.units != null) product.units = req.body.units; 
+        if (req.body.size != null) product.size  = req.body.size;
+        if (req.body.colour != null) product.colour = req.body.colour;
+        if (req.body.gender != null) product.gender = req.body.gender;
+
+        if (req.body.images != null) {
+          if (req.body.images instanceof Array) {
+            req.body.images.forEach(function(element, index, array){
+              product.images.push( element );
+            });
+          }
+          else
+          {
+            product.images.push( req.body.images );      
+          }    
         }
+
+        product.save(function(err) {
+          if(!err) {
+            log.info("product created");
+            res.statusCode = 201;
+            res.send({ status: "ok", product: product});
+          } else {
+            if(err.name == 'ValidationError') {
+              res.statusCode = 400;
+              log.error('Validation error(%d): %s',res.statusCode,err.message);
+              res.send('Validation error('+res.statusCode+'): '+err.message);
+            } else {
+              res.statusCode = 500;
+              log.error('Internal error(%d): %s',res.statusCode,err.message);
+              res.send({ status: "error", error_msg: 'Server error' });
+            }
+          }
+        });
+      } else {
+        log.error("Invalid user");
+        res.statusCode = 200;
+        res.send( { status: "error", error_msg: "Invalid user"} );
       }
     });
   };
 
-   // //PUT - Update a register already exists
+  // //PUT - Update a register already exists
   // updateTshirt = function(req, res) {
   //   log.info("PUT - /tshirt/:id");
   //   console.log(req.body);
@@ -184,26 +238,155 @@
   // DELETE - Delete a Product with specified ID
   exports.deleteProduct = function(req, res, next) {
     log.info("DELETE - /product/:id");
+
+    // Needs all params
+    if (!req.body.token) {
+      res.statusCode = 200;
+      return res.send({ status: "error", error_msg: "You need more inputs! Remember: token." });
+    };
+
     return Product.findById(req.params.id, function(err, product) {
       if(!product) {
         res.statusCode = 404;
-        return res.send({ error: 'Not found' });
+        return res.send({ status: "error", error_msg: 'Not found product with this id' });
       }
 
-      product.remove(function(err) {
-        if(!err) {
-          console.log('Removed product');
-          res.send({ status: 'OK' });
+      User.findOne( {token : req.body.token} , function(err, user){
+        if(!err && user && (user.role == "seller") && product.seller_id.equals(user._id)) {
+          product.remove(function(err) {
+            if(!err) {
+              console.log('Removed product');
+              res.send({ status: 'ok' });
+            } else {
+              res.statusCode = 500;
+              console.log('Internal error(%d): %s',res.statusCode,err.message);
+              res.send({ status: "error", error_msg: 'Server error' });
+            }
+          });
         } else {
-          res.statusCode = 500;
-          console.log('Internal error(%d): %s',res.statusCode,err.message);
-          res.send({ error: 'Server error' });
+          log.error("Invalid user");
+          res.statusCode = 200;
+          res.send( { status: "error", error_msg: "Invalid user"} );
         }
-      })
+      });
     });
   }
 
+ exports.newComment = function(req, res) {
+  log.info("PUT - /api/v1/product/comment - params token: " + req.body.token + "params product_id: " + req.body.product_id);
 
+  // Input validations
+  // Needs one params
+  if (!req.body.token || !req.body.product_id || !req.body.comment) {
+    return res.send({ status: "error", error_msg: "You need more params! Remember: token, product_id and comment." });
+  };
+
+  return User.findOne( { token: req.body.token }, function(err, user) {
+    if(!user) {
+      res.statusCode = 200;
+      return res.send({ status: "error", error_msg: 'Not user' });
+    }
+
+    Product.findById(req.body.product_id, function(err, product) {
+      if(!product) {
+        res.statusCode = 404;
+        return res.send({ status: "error", error_msg: 'Not found product with this id' });
+      }
+
+      // Fields for update
+      product.modified_at = new Date;
+      product.comments.push({ user_id: user._id, username: user.userName, comment: req.body.comment });
+      product.comments_count = product.comments_count + 1;
+
+      product.save(function(err) {
+        if(!err) {
+          res.statusCode = 200;
+          res.send({ status: 'ok', product:product });
+        } else {
+          if(err.name == 'ValidationError') {
+            res.statusCode = 400;
+            res.send({ status: "error", error_msg: 'Validation error' });
+          } else {
+            res.statusCode = 500;
+            if (err.code == 11000) {
+              log.error('Duplicate key');
+              res.send({ status: "error", error_msg: 'Duplicate key' });
+            } else {
+              log.error('Internal error(%d): %s',res.statusCode,err.message);
+              res.send({ status: "error", error_msg: 'Server error' });
+            }
+          }
+        }
+      });
+    });
+  });
+ };
+
+ exports.changeLike = function(req, res) {
+  log.info("PUT - /api/v1/product/like - params token: " + req.body.token + "params product_id: " + req.body.product_id);
+
+  // Input validations
+  // Needs one params
+  if (!req.body.token || !req.body.product_id) {
+    return res.send({ status: "error", error_msg: "You need more params! Remember: token, product_id." });
+  };
+
+  return User.findOne( { token: req.body.token }, function(err, user) {
+    if(!user) {
+      res.statusCode = 200;
+      return res.send({ status: "error", error_msg: 'Not user' });
+    }
+
+    Product.findById(req.body.product_id, function(err, product) {
+      if(!product) {
+        res.statusCode = 404;
+        return res.send({ status: "error", error_msg: 'Not found product with this id' });
+      }
+
+      var existLikeByThisUser = false;
+      product.likes.forEach(function(element, index, array){
+        console.log("Element: " + element + " index: " + index);
+        if (element.user_id.equals(user._id)) { 
+          existLikeByThisUser = true;
+          if (index > -1) {
+            product.likes.splice(index, 1);
+          }
+        };
+      });
+
+      // Fields for update
+      if (!existLikeByThisUser) {
+        console.log("Exist in array: " + existLikeByThisUser);
+        product.likes.push({ user_id: user._id, username: user.userName });
+        product.likes_count = product.likes_count + 1;
+      } else {
+        product.likes_count = product.likes_count - 1;
+      }
+      product.modified_at = new Date;
+
+      product.save(function(err) {
+        if(!err) {
+          res.statusCode = 200;
+          res.send({ status: 'ok', product:product });
+        } else {
+          if(err.name == 'ValidationError') {
+            res.statusCode = 400;
+            res.send({ status: "error", error_msg: 'Validation error' });
+          } else {
+            res.statusCode = 500;
+            if (err.code == 11000) {
+              log.error('Duplicate key');
+              res.send({ status: "error", error_msg: 'Duplicate key' });
+            } else {
+              log.error('Internal error(%d): %s',res.statusCode,err.message);
+              res.send({ status: "error", error_msg: 'Server error' });
+            }
+          }
+        }
+      });
+    });
+  });
+ };
 
 
 //
