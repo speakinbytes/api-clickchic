@@ -174,19 +174,37 @@
           }    
         }
 
-        product.save(function(err) {
-          if(!err) {
+        product.save(function(err_product) {
+          if(!err_product) {
             log.info("product created");
-            res.statusCode = 201;
-            res.send({ status: "ok", product: product});
+
+            user.products_count = user.products_count + 1;
+
+            user.save(function(err_user) {
+              if(!err_user) {
+                log.info("user num_product");
+                res.statusCode = 201;
+                res.send({ status: "ok", product: product});
+              } else {
+                if(err_user.name == 'ValidationError') {
+                  res.statusCode = 400;
+                  log.error('Validation error(%d): %s',res.statusCode,err_user.message);
+                  res.send('Validation error('+res.statusCode+'): '+err_user.message);
+                } else {
+                  res.statusCode = 500;
+                  log.error('Internal error(%d): %s',res.statusCode,err_user.message);
+                  res.send({ status: "error", error_msg: 'Server error' });
+                }
+              }
+            });
           } else {
-            if(err.name == 'ValidationError') {
+            if(err_product.name == 'ValidationError') {
               res.statusCode = 400;
-              log.error('Validation error(%d): %s',res.statusCode,err.message);
-              res.send('Validation error('+res.statusCode+'): '+err.message);
+              log.error('Validation error(%d): %s',res.statusCode,err_product.message);
+              res.send('Validation error('+res.statusCode+'): '+err_product.message);
             } else {
               res.statusCode = 500;
-              log.error('Internal error(%d): %s',res.statusCode,err.message);
+              log.error('Internal error(%d): %s',res.statusCode,err_product.message);
               res.send({ status: "error", error_msg: 'Server error' });
             }
           }
@@ -322,7 +340,7 @@
   });
  };
 
- exports.changeLike = function(req, res) {
+exports.changeLike = function(req, res) {
   log.info("PUT - /api/v1/product/like - params token: " + req.body.token + "params product_id: " + req.body.product_id);
 
   // Input validations

@@ -6,6 +6,7 @@ module.exports = function(app, passport) {
     app.post('/api/v1/login', users.login);
     app.post('/api/v1/profile', users.profile);
     app.put('/api/v1/user', users.update);
+    app.post('/api/v1/seller/clickchic', users.clickchic);
 
     // Products Routes
     var products = require('../app/controllers/products');

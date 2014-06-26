@@ -5,7 +5,7 @@ var _           = require('underscore');
 
 var UserSchema = mongoose.Schema({
     role:       { type: String,
-                    enum: ['admin', 'crafter', 'seller'] }, 
+                    enum: ['admin', 'user', 'seller'] }, 
     name:       String,
     lastName:   String,
     userName:   String, 
@@ -20,6 +20,7 @@ var UserSchema = mongoose.Schema({
                     user_id: {type: mongoose.Schema.ObjectId },
                     username: String
                 }],
+    products_count: Number,
     facebook:{
         id:       String,
         email:    String,

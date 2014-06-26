@@ -76,10 +76,12 @@ exports.register = function(req, res) {
     userName:         req.body.username,
     email:            req.body.email,
     password:         req.body.password,
-    role:             req.body.role 
+    role:             req.body.role
   });
 
   user.clickchick_count = 0;
+  user.clickchics = [];
+  user.products_count = 0;
 
   // create token
   var token = jwt.encode( { salt: user.salt, password: user.hashed_password }, secret);
@@ -229,4 +231,68 @@ exports.update = function(req, res) {
     });
   });
 }
+
+exports.clickchic = function(req, res) {
+  log.info("PUT - /api/v1/product/like - params token: " + req.body.token + "params seller_id: " + req.body.seller_id);
+
+  // Input validations
+  // Needs one params
+  if (!req.body.token || !req.body.seller_id) {
+    return res.send({ status: "error", error_msg: "You need more params! Remember: token, seller_id." });
+  };
+
+  return User.findOne( { token: req.body.token }, function(err, user) {
+    if(!user) {
+      res.statusCode = 200;
+      return res.send({ status: "error", error_msg: 'Not user' });
+    }
+
+    User.findById(req.body.seller_id, function(errSeller, seller) {
+      if(!seller) {
+        res.statusCode = 404;
+        return res.send({ status: "error", error_msg: 'Not found seller with this id' });
+      }
+
+      var existsClickChicForSeller = false;
+      seller.clickchics.forEach(function(element, index, array){
+        if (element.user_id.equals(user._id)) { 
+          existsClickChicForSeller = true;
+          if (index > -1) {
+            seller.clickchics.splice(index, 1);
+          }
+        };
+      });
+
+      // Fields for update
+      if (!existsClickChicForSeller) {
+        seller.clickchics.push({ user_id: user._id, username: user.userName });
+        seller.clickchic_count = seller.clickchic_count + 1;
+      } else {
+        seller.clickchic_count = seller.clickchic_count - 1;
+      }
+      seller.modified_at = new Date;
+
+      seller.save(function(err) {
+        if(!err) {
+          res.statusCode = 200;
+          res.send({ status: 'ok', seller:seller });
+        } else {
+          if(err.name == 'ValidationError') {
+            res.statusCode = 400;
+            res.send({ status: "error", error_msg: 'Validation error' });
+          } else {
+            res.statusCode = 500;
+            if (err.code == 11000) {
+              log.error('Duplicate key');
+              res.send({ status: "error", error_msg: 'Duplicate key' });
+            } else {
+              log.error('Internal error(%d): %s',res.statusCode,err.message);
+              res.send({ status: "error", error_msg: 'Server error' });
+            }
+          }
+        }
+      });
+    });
+  });
+ };
 
