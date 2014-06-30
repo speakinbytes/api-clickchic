@@ -33,6 +33,12 @@
   exports.index = function(req, res) {
     log.info("POST - /api/v1/products");
 
+    log.info("Params. token: " + req.body.token +
+                      "seller_id: " + req.body.seller_id +
+                      "featured: " + req.body.featured +
+                      "category_id: " + req.body.category_id +
+                      "last: " + req.body.last);
+
     if (req.body.token && req.body.seller_id) {
       res.statusCode = 200;
       res.send( { status: "error", error_msg: "send only toker or seller_id, not both."} );
@@ -58,7 +64,7 @@
             } else {
               res.statusCode = 500;
               log.error('Internal error(%d): %s',res.statusCode,err.message);
-              res.send({ error: 'Server error' });
+              res.send({ status: "error", error_msg: 'Server error' });
             }
           });
         }
@@ -67,7 +73,7 @@
           res.send( { status: "error", error_msg: "Not user."} );
         }
       });
-    }
+    };
     
     if (req.body.category_id) { 
       query["category_id"] = req.body.category_id;
