@@ -40,8 +40,6 @@
 
     var query = {};
 
-    if (req.body.category_id) { query["category_id"] = req.body.category_id };
-
     if (req.body.token || req.body.seller_id) {
       var userQuery;
       if (req.body.token) { userQuery = { token: req.body.token }; }
@@ -70,8 +68,9 @@
         }
       });
     }
-    else {
-
+    
+    if (req.body.category_id) { 
+      query["category_id"] = req.body.category_id;
     	Product.find(query, function(err, products) {
         if (products.length == 0) {
           res.statusCode = 200;
@@ -83,10 +82,47 @@
     		} else {
           res.statusCode = 500;
     			log.error('Internal error(%d): %s',res.statusCode,err.message);
-          res.send({ error: 'Server error' });
+          res.send({ status: "error", error_msg: 'Server error' });
     		}
     	});
-    }
+    };
+
+    if (req.body.featured) {
+      Product.find().sort({'views_count' : 1}).limit(30).exec ( function(err, products) {
+        if (products.length == 0) {
+          res.statusCode = 200;
+          log.info('Status(%d): %s',res.statusCode, "No find products with featured. :(");        
+          return res.send( { status: "error", error_msg: "Not products." });
+        }
+        if(!err) {
+          res.send({ status: "ok", "products" : products });
+        } else {
+          res.statusCode = 500;
+          log.error('Internal error(%d): %s',res.statusCode,err.message);
+          res.send({ status: "error", error_msg: 'Server error' });
+        }
+      });
+    };
+
+    if (req.body.last) {
+      Product.find().sort({'created_at' : 1}).limit(30).exec ( function(err, products) {
+        if (products.length == 0) {
+          res.statusCode = 200;
+          log.info('Status(%d): %s',res.statusCode, "No find products with featured. :(");        
+          return res.send( { status: "error", error_msg: "Not products." });
+        }
+        if(!err) {
+          res.send({ status: "ok", "products" : products });
+        } else {
+          res.statusCode = 500;
+          log.error('Internal error(%d): %s',res.statusCode,err.message);
+          res.send({ status: "error", error_msg: 'Server error' });
+        }
+      });
+    };
+
+    res.send({ status: "error", error_msg: 'Need params. Remember: token or seller_id or category_id or featured or last' });
+    
   };
   
   // GET - /api/v1/product/{id} --> Return a Product with specified ID
