@@ -122,7 +122,7 @@
     log.info("Antes de last");
     if (req.body.last) {
       log.info("Dentro de last");
-      Product.find().sort({'created_at' : 1}).limit(30).exec ( function(err, products) {
+      Product.find().sort({'created_at' : -1}).limit(30).exec ( function(err, products) {
         if (products.length == 0) {
           res.statusCode = 200;
           log.info('Status(%d): %s',res.statusCode, "No find products with featured. :(");        
