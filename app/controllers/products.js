@@ -39,14 +39,20 @@
                       "category_id: " + req.body.category_id +
                       "last: " + req.body.last);
 
+    if (!req.body.token && !req.body.seller_id && !req.body.category_id && !req.body.featured && !req.body.last) {
+      res.statusCode = 200;
+      return res.send({ status: "error", error_msg: 'Need params. Remember: token or seller_id or category_id or featured or last' });
+    };
+
     if (req.body.token && req.body.seller_id) {
       res.statusCode = 200;
       res.send( { status: "error", error_msg: "send only toker or seller_id, not both."} );
     };
 
     var query = {};
-
+    log.info("Antes de token");
     if (req.body.token || req.body.seller_id) {
+      log.info("Dentro de token");
       var userQuery;
       if (req.body.token) { userQuery = { token: req.body.token }; }
       if (req.body.seller_id) { userQuery = { _id: req.body.seller_id }; };
@@ -75,7 +81,9 @@
       });
     };
     
+    log.info("Antes de category");
     if (req.body.category_id) { 
+      log.info("Dentro  de category");
       query["category_id"] = req.body.category_id;
     	Product.find(query, function(err, products) {
         if (products.length == 0) {
@@ -93,7 +101,9 @@
     	});
     };
 
+    log.info("Antes de featured");
     if (req.body.featured) {
+      log.info("Dentro de featured");
       Product.find().sort({'views_count' : 1}).limit(30).exec ( function(err, products) {
         if (products.length == 0) {
           res.statusCode = 200;
@@ -109,8 +119,9 @@
         }
       });
     };
-
+    log.info("Antes de last");
     if (req.body.last) {
+      log.info("Dentro de last");
       Product.find().sort({'created_at' : 1}).limit(30).exec ( function(err, products) {
         if (products.length == 0) {
           res.statusCode = 200;
@@ -126,9 +137,9 @@
         }
       });
     };
-
-    res.send({ status: "error", error_msg: 'Need params. Remember: token or seller_id or category_id or featured or last' });
+    log.info("Antes de fin");
     
+    log.info("Después de fin");
   };
   
   // GET - /api/v1/product/{id} --> Return a Product with specified ID
