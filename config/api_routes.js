@@ -13,10 +13,10 @@ module.exports = function(app, passport) {
     app.post('/api/v1/product', products.create);
     app.post('/api/v1/products', products.index);
     app.route('/api/v1/product/:id')
-        .get(products.show)
+        .post(products.show)
         .delete(products.deleteProduct);
-    app.post('/api/v1/product/comment', products.newComment);
-    app.post('/api/v1/product/like', products.changeLike);
+    app.post('/api/v1/product/:id/comment', products.newComment);
+    app.post('/api/v1/product/:id/like', products.changeLike);
 
     // Categories Routes
     var categories = require('../app/controllers/categories');

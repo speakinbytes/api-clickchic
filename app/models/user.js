@@ -20,6 +20,13 @@ var UserSchema = mongoose.Schema({
                     user_id: {type: mongoose.Schema.ObjectId },
                     username: String
                 }],
+    shop:       {
+                    address: String, 
+                    name: String,
+                    lat: Number,
+                    lon: Number
+                },
+    web:        String,
     products_count: Number,
     facebook:{
         id:       String,

@@ -50,9 +50,7 @@
     };
 
     var query = {};
-    log.info("Antes de token");
     if (req.body.token || req.body.seller_id) {
-      log.info("Dentro de token");
       var userQuery;
       if (req.body.token) { userQuery = { token: req.body.token }; }
       if (req.body.seller_id) { userQuery = { _id: req.body.seller_id }; };
@@ -81,7 +79,6 @@
       });
     };
     
-    log.info("Antes de category");
     if (req.body.category_id) { 
       log.info("Dentro  de category");
       query["category_id"] = req.body.category_id;
@@ -101,10 +98,9 @@
     	});
     };
 
-    log.info("Antes de featured");
     if (req.body.featured) {
       log.info("Dentro de featured");
-      Product.find().sort({'views_count' : 1}).limit(30).exec ( function(err, products) {
+      Product.find().sort({'views_count' : -1}).limit(30).exec ( function(err, products) {
         if (products.length == 0) {
           res.statusCode = 200;
           log.info('Status(%d): %s',res.statusCode, "No find products with featured. :(");        
@@ -119,7 +115,7 @@
         }
       });
     };
-    log.info("Antes de last");
+
     if (req.body.last) {
       log.info("Dentro de last");
       Product.find().sort({'created_at' : -1}).limit(30).exec ( function(err, products) {
@@ -137,14 +133,16 @@
         }
       });
     };
-    log.info("Antes de fin");
-    
-    log.info("Después de fin");
   };
   
   // GET - /api/v1/product/{id} --> Return a Product with specified ID
   exports.show = function(req, res) {
     log.info("GET - /api/v1/product/:id");
+
+    // if (!req.body.product_id || req.body.product_id == "") {
+    //   return res.send({status: "error", error_msg: "Need product_id"});
+    // }
+
     Product.findById(req.params.id, function(err, product) {
       if(!product) {
         res.statusCode = 200;
@@ -156,8 +154,39 @@
         product.views_count = product.views_count + 1;
         product.save(function(err) {
           if(!err) {
-            res.statusCode = 200;
-            res.send({ status: "ok", product:product });
+            console.log("-------> Body; " + req.body.token + " params: " + req.params.token);
+            if (req.body.token && req.body.token != "") {
+              User.findOne( {token : req.body.token} , function(err, user){
+                if(!err && user) {
+                  var existLikeByThisUser = false;
+                  product.likes.forEach(function(element, index, array){
+                    if (element.user_id.equals(user._id)) { 
+                      existLikeByThisUser = true;
+                      if (index > -1) {
+                        product.likes.splice(index, 1);
+                      }
+                    };
+                  });
+
+                  // Fields for update
+                  if (!existLikeByThisUser) {
+                    res.statusCode = 200;
+                    res.send({ status: "ok", product:product, like_me: "0" });
+                  } else {
+                    res.statusCode = 200;
+                    res.send({ status: "ok", product:product, like_me: "1" });
+                  }
+                } else {
+                  log.error("Show product with incorrect token");
+                  res.statusCode = 200;
+                  res.send({ status: "error", error_msg: "Problems with your token."});
+                }
+
+              });
+            } else {
+              res.statusCode = 200;
+              res.send({ status: "ok", product:product });
+            }            
           } else {
             res.statusCode = 200;
             res.send( { status: "error", error_msg: "Imposible show product now! Try again!"} );
@@ -198,6 +227,22 @@
         var product = new Product();
 
         product.seller_id = user;
+        if (user.userName && user.userName != "") { 
+          product.seller_name = user.userName;
+        };
+
+        if (user.twitter.name && user.twitter.name != "") {
+          product.seller_twitter = user.twitter.name;
+        } else {
+          product.seller_twitter = "@clickchic";
+        }
+        
+        if (user.photo && user.photo != "") {
+          product.seller_avatar = user.photo;
+        } else {
+          product.seller_avatar = "https://s3.amazonaws.com/api-clickchic-img/mini_avatar.png";
+        }
+
         product.comments_count = 0;
         product.views_count = 0;
         product.likes_count = 0;
@@ -348,8 +393,8 @@
 
   // Input validations
   // Needs one params
-  if (!req.body.token || !req.body.product_id || !req.body.comment) {
-    return res.send({ status: "error", error_msg: "You need more params! Remember: token, product_id and comment." });
+  if (!req.body.token || !req.params.id || !req.body.comment) {
+    return res.send({ status: "error", error_msg: "You need more params! Remember: token (body), product_id (param) and comment (body)." });
   };
 
   return User.findOne( { token: req.body.token }, function(err, user) {
@@ -358,7 +403,7 @@
       return res.send({ status: "error", error_msg: 'Not user' });
     }
 
-    Product.findById(req.body.product_id, function(err, product) {
+    Product.findById(req.params.id, function(err, product) {
       if(!product) {
         res.statusCode = 404;
         return res.send({ status: "error", error_msg: 'Not found product with this id' });
@@ -398,8 +443,8 @@ exports.changeLike = function(req, res) {
 
   // Input validations
   // Needs one params
-  if (!req.body.token || !req.body.product_id) {
-    return res.send({ status: "error", error_msg: "You need more params! Remember: token, product_id." });
+  if (!req.body.token || !req.params.id) {
+    return res.send({ status: "error", error_msg: "You need more params! Remember: token (body), product_id (params)." });
   };
 
   return User.findOne( { token: req.body.token }, function(err, user) {
@@ -408,7 +453,7 @@ exports.changeLike = function(req, res) {
       return res.send({ status: "error", error_msg: 'Not user' });
     }
 
-    Product.findById(req.body.product_id, function(err, product) {
+    Product.findById(req.params.id, function(err, product) {
       if(!product) {
         res.statusCode = 404;
         return res.send({ status: "error", error_msg: 'Not found product with this id' });

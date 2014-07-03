@@ -2,6 +2,7 @@
  * Module dependencies.
  */
 var User        = require('../models/user.js');
+var Product     = require('../models/product.js');
 var AccessToken = require('../models/access_token.js');
 var log         = require('../../libs/log')(module);
 var jwt         = require('jwt-simple');
@@ -27,7 +28,8 @@ exports.login = function(req, res) {
         } else {
           log.info("User " + user.email + " logged in");
           res.statusCode = 200;
-          return res.send({ status: "ok", "token" : user.token });
+          console.log(":::::::: " + user.token);
+          return res.send({ status: "ok", token : user.token });
 
           // ** If we use access_token <-- Uncomment if we need.
           // AccessToken.findOne( {user: user}, function(errToken, token) {
@@ -164,14 +166,39 @@ exports.profile = function(req, res) {
         res.send( { status: "error", error_msg: "You need be a seller."} );
       }
       else {
-        dict["email"] = user.email;
-        dict["id"] = user.id;
-        dict["username"] = user.userName;
-        dict["clickchick_count"] = user.clickchick_count;
-        dict["clickchics"] = user.clickchicks;
+        if (user.role == "seller") {
+          dict["email"] = user.email;
+          dict["id"] = user.id;
+          dict["username"] = user.userName;
+          dict["clickchick_count"] = user.clickchick_count;
+          dict["clickchics"] = user.clickchicks;
+          dict["address"] = user.shop.address;
+          dict["web"] = user.web;
+          dict["twitter"] = user.twitter.name;
+          dict["products_count"] = user.products_count;
+          dict["lat"] = user.shop.lat;
+          dict["lon"] = user.shop.lon;
 
-        res.statusCode = 200;
-        res.send( { status: "ok", user: dict } );
+          var query = {};
+          query["seller_id"] = user._id;
+          Product.find(query, function(err, products) {
+            if (products.length == 0) {
+              res.statusCode = 200;
+              log.info('Status(%d): %s',res.statusCode, "No find products. :(");        
+              return res.send( { status: "error", error_msg: "Not products." });
+            }
+            if(!err) {
+              res.statusCode = 200;
+              res.send( { status: "ok", user: dict, products: products } );
+            } else {
+              res.statusCode = 500;
+              log.error('Internal error(%d): %s',res.statusCode,err.message);
+              res.send({ status: "error", error_msg: 'Server error' });
+            }
+          });
+        } else {
+
+        }
       }
     } else {
       res.statusCode = 500;
