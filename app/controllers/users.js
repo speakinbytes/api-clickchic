@@ -3,6 +3,7 @@
  */
 var User        = require('../models/user.js');
 var Product     = require('../models/product.js');
+var Category    = require('../models/category.js');
 var AccessToken = require('../models/access_token.js');
 var log         = require('../../libs/log')(module);
 var jwt         = require('jwt-simple');
@@ -84,6 +85,27 @@ exports.register = function(req, res) {
   user.clickchick_count = 0;
   user.clickchics = [];
   user.products_count = 0;
+
+  if (req.body.shop && req.body.shop != "") {
+    user.shop.name = req.body.shop;
+  }
+
+  if (req.body.address && req.body.address != "") {
+    user.shop.address = req.body.address;
+  }
+
+  if (req.body.web && req.body.web != "") {
+    user.web = req.body.web;
+  }
+
+  if (req.body.twitter && req.body.twitter != "") {
+    user.twitter.name = req.body.twitter;
+  }
+
+  if (req.body.lat && req.body.lat != "" && req.body.lon && req.body.lon != "") {
+    user.shop.lat = req.body.lat;
+    user.shop.lon = req.body.lon;
+  }
 
   // create token
   var token = jwt.encode( { salt: user.salt, password: user.hashed_password }, secret);
@@ -322,4 +344,93 @@ exports.clickchic = function(req, res) {
     });
   });
  };
+
+
+////////////// WEB /////////////////
+// POST - /api/v1/shop 
+exports.shop = function(req, res) {
+  log.info('POST - /api/v1/shop --> Show user shop');
+  log.info('Params - token: ' + req.body.token);
+
+  // Input validations
+  // Needs one params
+  if (req.body.token == null) {
+    return res.send({ status: "error", error_msg: "You need more params! Remember: token" });
+  };
+  
+  var query  = { token: req.body.token };
+  var dict = {};
+
+  User.findOne(query, function(err, user) {
+    if (user == null) {
+      res.statusCode = 200;
+      log.info('Status(%d): %s',res.statusCode, "No find User");        
+      return res.send({"status": "error", error_msg: "Not user."});
+    }
+    if(!err) {
+      if (user.role == "crafter") {
+        res.statusCode = 200;
+        res.send( { status: "error", error_msg: "You need be a seller."} );
+      }
+      else {
+        if (user.role == "seller") {
+          dict["email"] = user.email;
+          dict["id"] = user.id;
+          dict["username"] = user.userName;
+          dict["clickchick_count"] = user.clickchick_count;
+          dict["clickchics"] = user.clickchicks;
+          dict["address"] = user.shop.address;
+          dict["web"] = user.web;
+          dict["twitter"] = user.twitter.name;
+          dict["products_count"] = user.products_count;
+          dict["lat"] = user.shop.lat;
+          dict["lon"] = user.shop.lon;
+
+          var arrayCategories = [];
+          Category.find(function(err, cagegories) {
+            if (cagegories.length == 0) {
+              res.statusCode = 200;
+              log.info('Status(%d): %s',res.statusCode, "No find cagegories. :(");        
+              return res.send( { status: "error", error_msg: "Not cagegories." });
+            }
+            if(!err) {
+              arrayCategories = categories;
+            } else {
+              res.statusCode = 500;
+              log.error('Internal error(%d): %s',res.statusCode,err.message);
+              res.send({ status: "error", error_msg: 'Server error' });
+            }
+          });
+
+          var query = {};
+          query["seller_id"] = user._id;
+          Product.find(query, function(err, products) {
+            if (products.length == 0) {
+              res.statusCode = 200;
+              log.info('Status(%d): %s',res.statusCode, "No find products. :(");        
+              return res.send( { status: "error", error_msg: "Not products." });
+            }
+            if(!err) {
+              res.statusCode = 200;
+              res.send( { status: "ok", user: dict, products: products, categories: arrayCategories } );
+            } else {
+              res.statusCode = 500;
+              log.error('Internal error(%d): %s',res.statusCode,err.message);
+              res.send({ status: "error", error_msg: 'Server error' });
+            }
+          });
+        } else {
+
+        }
+      }
+    } else {
+      res.statusCode = 500;
+      log.error('Internal error(%d): %s',res.statusCode,err.message);
+      res.send({ error: 'Server error' });
+    }
+  });
+}
+
+
+
 
