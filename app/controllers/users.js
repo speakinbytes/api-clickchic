@@ -11,8 +11,8 @@ var jwt         = require('jwt-simple');
 // POST - /api/v1/login --> Insert a new User in the DB
 // Params - username, email, password and role
 exports.login = function(req, res) {
-  log.info("POST - /api/v1/login - login");
-  
+  log.info("POST - /api/v1/login - login. Email: " + req.body.email);
+
   if (req.body.email && req.body.password) {
     User.findOne({ email: req.body.email }, function(err, user) {
       if (!user) {
