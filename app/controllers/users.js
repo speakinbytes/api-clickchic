@@ -387,11 +387,12 @@ exports.shop = function(req, res) {
           dict["lon"] = user.shop.lon;
 
           var arrayCategories = [];
-          Category.find(function(err, cagegories) {
-            if (cagegories.length == 0) {
+          Category.find(function(err, categories) {
+            console.log("AQUI: " + categories);
+            if (categories.length == 0) {
               res.statusCode = 200;
-              log.info('Status(%d): %s',res.statusCode, "No find cagegories. :(");        
-              return res.send( { status: "error", error_msg: "Not cagegories." });
+              log.info('Status(%d): %s',res.statusCode, "No find categories. :(");        
+              return res.send( { status: "error", error_msg: "Not categories." });
             }
             if(!err) {
               arrayCategories = categories;
@@ -404,21 +405,38 @@ exports.shop = function(req, res) {
 
           var query = {};
           query["seller_id"] = user._id;
-          Product.find(query, function(err, products) {
+          var arrayProducts = [];
+          Product.find(query).sort({'created_at' : -1}).limit(30).exec(function(err, products) {
             if (products.length == 0) {
               res.statusCode = 200;
               log.info('Status(%d): %s',res.statusCode, "No find products. :(");        
               return res.send( { status: "error", error_msg: "Not products." });
             }
             if(!err) {
-              res.statusCode = 200;
-              res.send( { status: "ok", user: dict, products: products, categories: arrayCategories } );
+              arrayProducts = products;
             } else {
               res.statusCode = 500;
               log.error('Internal error(%d): %s',res.statusCode,err.message);
               res.send({ status: "error", error_msg: 'Server error' });
             }
           });
+
+          Product.find(query).sort({'views_count' : -1}).limit(3).exec(function(err, products2) {
+            if (products2.length == 0) {
+              res.statusCode = 200;
+              log.info('Status(%d): %s',res.statusCode, "No find products2. :(");        
+              return res.send( { status: "error", error_msg: "Not products2." });
+            }
+            if(!err) {
+              res.statusCode = 200;
+              res.send( { status: "ok", user: dict, products: arrayProducts, categories: arrayCategories, top: products2 } );
+            } else {
+              res.statusCode = 500;
+              log.error('Internal error(%d): %s',res.statusCode,err.message);
+              res.send({ status: "error", error_msg: 'Server error' });
+            }
+          });
+
         } else {
 
         }

@@ -50,7 +50,8 @@
     };
 
     var query = {};
-    if (req.body.token || req.body.seller_id) {
+    if ((req.body.token || req.body.seller_id) && !req.body.category_id && !req.body.featured) {
+      console.log("Dentro de token sin category y sin featured");
       var userQuery;
       if (req.body.token) { userQuery = { token: req.body.token }; }
       if (req.body.seller_id) { userQuery = { _id: req.body.seller_id }; };
@@ -79,7 +80,7 @@
       });
     };
     
-    if (req.body.category_id) { 
+    if (req.body.category_id && !req.body.token && !req.body.seller_id) { 
       log.info("Dentro  de category");
       query["category_id"] = req.body.category_id;
     	Product.find(query, function(err, products) {
@@ -98,9 +99,9 @@
     	});
     };
 
-    if (req.body.featured) {
+    if (req.body.featured && !req.body.token && !req.body.seller_id) {
       log.info("Dentro de featured");
-      Product.find().sort({'views_count' : -1}).limit(30).exec ( function(err, products) {
+      Product.find().sort({'views_count' : -1}).limit(30).exec( function(err, products) {
         if (products.length == 0) {
           res.statusCode = 200;
           log.info('Status(%d): %s',res.statusCode, "No find products with featured. :(");        
@@ -116,9 +117,9 @@
       });
     };
 
-    if (req.body.last) {
+    if (req.body.last && !req.body.token && !req.body.seller_id) {
       log.info("Dentro de last");
-      Product.find().sort({'created_at' : -1}).limit(30).exec ( function(err, products) {
+      Product.find().sort({'created_at' : -1}).limit(30).exec( function(err, products) {
         if (products.length == 0) {
           res.statusCode = 200;
           log.info('Status(%d): %s',res.statusCode, "No find products with featured. :(");        
@@ -133,11 +134,70 @@
         }
       });
     };
+
+    // token and category_id
+    if (req.body.category_id && req.body.token && !req.body.seller_id) { 
+      log.info("Dentro  de token and category");
+      
+      User.findOne( {token: req.body.token} , function(err, user){
+        if(!err && user) {
+          query["seller_id"] = user._id;
+          Product.find(query).where("category_id").equals(req.body.category_id).exec(function(err, products) {
+            if (products.length == 0) {
+              res.statusCode = 200;
+              log.info('Status(%d): %s',res.statusCode, "No find products. :(");        
+              return res.send( { status: "error", error_msg: "Not products." });
+            }
+            if(!err) {
+              res.send({ status: "ok", "products" : products });
+            } else {
+              res.statusCode = 500;
+              log.error('Internal error(%d): %s',res.statusCode,err.message);
+              res.send({ status: "error", error_msg: 'Server error' });
+            }
+          });
+        }
+        else {
+          res.statusCode = 200;
+          res.send( { status: "error", error_msg: "Not user."} );
+        }
+      });
+    };
+
+    // token and featured
+    if (req.body.featured && req.body.token && !req.body.seller_id) {
+      log.info("Dentro de token and featured");
+
+      User.findOne( {token: req.body.token} , function(err, user){
+        if(!err && user) {
+          query["seller_id"] = user._id;
+          Product.find({ "seller_id" : user._id }).limit(30).sort( {'views_count' : -1 }).exec(function(err, products) {
+            if (products.length == 0) {
+              res.statusCode = 200;
+              log.info('Status(%d): %s',res.statusCode, "No find products. :(");        
+              return res.send( { status: "error", error_msg: "Not products." });
+            }
+            if(!err) {
+              res.send({ status: "ok", "products" : products });
+            } else {
+              res.statusCode = 500;
+              log.error('Internal error(%d): %s',res.statusCode,err.message);
+              res.send({ status: "error", error_msg: 'Server error' });
+            }
+          });
+        }
+        else {
+          res.statusCode = 200;
+          res.send( { status: "error", error_msg: "Not user."} );
+        }
+      });
+    };
+
   };
   
   // GET - /api/v1/product/{id} --> Return a Product with specified ID
-  exports.show = function(req, res) {
-    log.info("GET - /api/v1/product/:id");
+  exports.showUser = function(req, res) {
+    log.info("POST - /api/v1/product/:id");
 
     // if (!req.body.product_id || req.body.product_id == "") {
     //   return res.send({status: "error", error_msg: "Need product_id"});
@@ -200,6 +260,34 @@
     });
   };
 
+  exports.show = function(req, res) {
+    log.info("GET - /api/v1/product/:id");
+
+    Product.findById(req.params.id, function(err, product) {
+      if(!product) {
+        res.statusCode = 200;
+        log.info('Status(%d): %s',res.statusCode, "No find product"); 
+        return res.send({ status: "error", error_msg: 'Not found' });
+      }
+      if(!err) {
+
+        product.views_count = product.views_count + 1;
+        product.save(function(err) {
+          if(!err) {
+            res.statusCode = 200;
+            res.send( { status: "ok", product: product } );
+          } else {
+            res.statusCode = 200;
+            res.send( { status: "error", error_msg: "Imposible show product now! Try again!"} );
+          }
+        });
+      } else {
+        res.statusCode = 500;
+        log.error('Internal error(%d): %s',res.statusCode,err.message);
+        res.send({ status: "error", error_msg: 'Server error' });
+      }
+    });
+  };
   
   // POST - /api/v1/product --> Insert a new Product in the DB
   // Params - model, description, seller_id, category_id, subcategory_id, price, units, colour, gender, size

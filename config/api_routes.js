@@ -14,7 +14,8 @@ module.exports = function(app, passport) {
     app.post('/api/v1/product', products.create);
     app.post('/api/v1/products', products.index);
     app.route('/api/v1/product/:id')
-        .post(products.show)
+        .get(products.show)
+        .post(products.showUser)
         .delete(products.deleteProduct);
     app.post('/api/v1/product/:id/comment', products.newComment);
     app.post('/api/v1/product/:id/like', products.changeLike);
