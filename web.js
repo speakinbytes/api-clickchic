@@ -77,7 +77,7 @@ mongoose.connect(uristring, function(err, res) {
       console.log("Node start at ", addr.address + ":" + addr.port);
     });
 
-    // var dataGen = require("./config/dataGen.js");
+    var dataGen = require("./config/dataGen.js");
 
   }
 });

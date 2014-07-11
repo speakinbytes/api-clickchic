@@ -200,6 +200,11 @@ exports.profile = function(req, res) {
           dict["products_count"] = user.products_count;
           dict["lat"] = user.shop.lat;
           dict["lon"] = user.shop.lon;
+          if (user.photo && user.photo != "") {
+            dict["photo"] = user.photo;
+          } else {
+            dict["photo"] = "https://s3.amazonaws.com/api-clickchic-img/mini_avatar.png";
+          }
 
           var query = {};
           query["seller_id"] = user._id;
@@ -228,6 +233,36 @@ exports.profile = function(req, res) {
       res.send({ error: 'Server error' });
     }
   });
+}
+
+// POST - /api/v1/shops_list --> List of shops
+// Params - lat, lon
+exports.shops_list = function(req, res) {
+  log.info('POST - /api/v1/shops --> Show shops list');
+  log.info('Params - lat: %d, lon: %d', 
+                     req.body.lat, req.body.long);
+
+  // For shops near of my position
+  if (req.body.lat != null && req.body.lon != null) {
+    
+  } else {
+    User.find().where("shop.lat").ne(null).limit(30).select("userName photo shop").exec( function(err, users) {
+        if (users.length == 0) {
+          res.statusCode = 200;
+          log.info('Status(%d): %s',res.statusCode, "No find shops :(");        
+          return res.send( { status: "error", error_msg: "Not shops." });
+        }
+        if(!err) {
+          res.statusCode = 200;
+          res.send({ status: "ok", "shops" : users });
+        } else {
+          res.statusCode = 500;
+          log.error('Internal error(%d): %s',res.statusCode,err.message);
+          res.send({ status: "error", error_msg: 'Server error' });
+        }
+      });
+
+  }
 }
 
 //PUT - Update a User register already exists

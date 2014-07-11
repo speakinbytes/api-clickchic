@@ -8,6 +8,7 @@ module.exports = function(app, passport) {
     app.put('/api/v1/user', users.update);
     app.post('/api/v1/seller/clickchic', users.clickchic);
     app.post('/api/v1/seller/shop', users.shop);
+    app.post('/api/v1/shops', users.shops_list);
 
     // Products Routes
     var products = require('../app/controllers/products');

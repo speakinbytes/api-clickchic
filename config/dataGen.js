@@ -55,6 +55,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
   	}
   });
 
+  user.photo = "https://s3.amazonaws.com/api-clickchic-img/mini_avatar.png";
   user.clickchick_count = 0;
   user.clickchics = [];
   user.products_count = 5;
