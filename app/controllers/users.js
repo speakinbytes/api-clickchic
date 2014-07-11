@@ -200,6 +200,7 @@ exports.profile = function(req, res) {
           dict["products_count"] = user.products_count;
           dict["lat"] = user.shop.lat;
           dict["lon"] = user.shop.lon;
+          dict["shop_name"] = user.shop.name;
           if (user.photo && user.photo != "") {
             dict["photo"] = user.photo;
           } else {
