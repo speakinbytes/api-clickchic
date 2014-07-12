@@ -21,12 +21,12 @@ User.remove({}, function(err) {
 			} else {
 				console.log("Delete all products!");
 
-				createUser("user1", "Pbojeda", "pb@pb.com", "Test1234", "iComplementos", 40.4254039, -3.712675499999932, "@pbojeda"); 
-				createUser("user2", "RobMarco", "robmarco@robmarco.com", "Test1234", "Diseños Marco", 40.530541, -3.638473999999974, "@robmarco");
-				createUser("user3", "MorenoMiro", "morenomiro@morenomiro.com", "Test1234", "Soy Diferente!!", 40.5312564, -3.633631899999955, "@isamorenomiro");    
-				createUser("user4", "BmJuan", "bmjuan@bmjuan.com", "Test1234", "En tus zapatos", 40.4166635, -3.7041686999999683, "@bmjuan");
-				createUser("user5", "Bridita", "bridita@bridita.com", "Test1234", "Collarlandia", 40.5050578, -3.67052149999995, "@bridita");
-				createUser("user6", "MA", "ma@ma.com", "Test1234", "Pum & Pez", 40.4207923, -3.701310299999932, "@lopezpumar");
+				createUser("user1", "Pbojeda", "pb@pb.com", "Test1234", "iComplementos", 40.4254039, -3.712675499999932, "@pbojeda", "www.icomplementos.com", 197); 
+				createUser("user2", "RobMarco", "robmarco@robmarco.com", "Test1234", "Diseños Marco", 40.530541, -3.638473999999974, "@robmarco", "www.marcodesign.com", 56);
+				createUser("user3", "MorenoMiro", "morenomiro@morenomiro.com", "Test1234", "Soy Diferente!!", 40.5312564, -3.633631899999955, "@isamorenomiro", "www.soydiferente.com", 78);    
+				createUser("user4", "BmJuan", "bmjuan@bmjuan.com", "Test1234", "En tus zapatos", 40.4166635, -3.7041686999999683, "@bmjuan", "www.entuszapatos.com", 38);
+				createUser("user5", "Bridita", "bridita@bridita.com", "Test1234", "Collarlandia", 40.5050578, -3.67052149999995, "@bridita", "www.collarlandia.com", 94);
+				createUser("user6", "MA", "ma@ma.com", "Test1234", "Pum & Pez", 40.4207923, -3.701310299999932, "@lopezpumar", "www.pumandpez.com", 109);
 			}
 		});
 	}
@@ -37,13 +37,13 @@ User.remove({}, function(err) {
 // Utils
 //==================
 
-function createUser(userselect, username, email, password, shopname, lat, lon, twitter) {
+function createUser(userselect, username, email, password, shopname, lat, lon, twitter, web, clickchick_count) {
   var user = new User({ 
   	userName: username, 
   	role: "seller",
   	email: email,
   	password: password,
-  	web: "www.clickchic.com",
+  	web: web,
   	shop: {
   		address: "Fuencarral, Madrid",
   		name: shopname,
@@ -56,7 +56,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
   });
 
   user.photo = "https://s3.amazonaws.com/api-clickchic-img/mini_avatar.png";
-  user.clickchick_count = 0;
+  user.clickchick_count = clickchick_count;
   user.clickchics = [];
   user.products_count = 5;
 
@@ -85,7 +85,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 											"https://s3.amazonaws.com/api-clickchic-img/prod_user1_moda1_3.png", 
 											17, 
 											"", "", "", 
-											21);
+											21, user.shop.name);
 				
 				createProduct("Verderano", 
 											"Vestido largo ideal para el verano hecho con material chiffon. Disponible en múltiples tallas. Unidades limitadas.", 
@@ -100,7 +100,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 											"https://s3.amazonaws.com/api-clickchic-img/prod_user1_moda2_3.jpg", 
 											6, 
 											"", "", "", 
-											12);
+											12, user.shop.name);
 				
 				createProduct("AngelineShow", 
 											"Pulsera reloj con insignia. Alegre, personalizado. Destaca sólo con mirarlo.", 
@@ -115,7 +115,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 											"https://s3.amazonaws.com/api-clickchic-img/prod_user1_comp1_3.jpg", 
 											6, 
 											"", "", "", 
-											12);
+											12, user.shop.name);
 				
 				createProduct("Con cariñitos", 
 											"Si eres de esas personas detallistas, aquí tienes un producto ideal para regalar a una madre!", 
@@ -130,7 +130,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 											"https://s3.amazonaws.com/api-clickchic-img/prod_user1_comp2_3.jpg", 
 											2, 
 											"", "", "", 
-											43);
+											43, user.shop.name);
 				
 				createProduct("PrintableWindsone", 
 											"No te conformes con un simple portaretratos. Ten tu propio pequeño muro del arte.", 
@@ -145,7 +145,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 											"https://s3.amazonaws.com/api-clickchic-img/prod_user1_deco1_3.jpg", 
 											33, 
 											"", "", "", 
-											2);
+											2, user.shop.name);
 
     	};
     
@@ -165,7 +165,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user2_moda1_3.jpg", 
 										10, 
 										"", "", "", 
-										6);
+										6, user.shop.name);
 			
 			createProduct("Premium colour style", 
 										"Para aquellas mujeres atrevidas que quieran destacar con un vestido único!", 
@@ -180,7 +180,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user2_moda2_3.jpg", 
 										14, 
 										"", "", "", 
-										56);
+										56, user.shop.name);
 			
 			createProduct("Hippie Chic Boemio", 
 										"Esta preciosa diadema para mujeres y adolescentes es el complemento perfecto para tus conjuntos.", 
@@ -195,7 +195,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user2_comp1_3.jpg", 
 										6, 
 										"", "", "", 
-										12);
+										12, user.shop.name);
 			
 			createProduct("SthNew ProBodas", 
 										"Estás pensando en casarte? Simplemente te sientes especial? Luce esta perfecta diadema exclusiva para ti.", 
@@ -210,7 +210,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user2_comp2_3.jpg", 
 										14, 
 										"", "", "", 
-										64);
+										64, user.shop.name);
 			
 			createProduct("Cestas multicolor vintage", 
 										"Dale un aire diferente a tu casa, a tu oficina o a cualquier habitación en la que necesites almacenar cosas. Hecho con materiales de primerísima calidad.", 
@@ -225,7 +225,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user2_deco1_3.jpg", 
 										6, 
 										"", "", "", 
-										12);
+										12, user.shop.name);
     };
 
     if (userselect == "user3") {
@@ -243,7 +243,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user3_model1_3.jpg", 
 										12, 
 										"", "", "", 
-										32);
+										32, user.shop.name);
 			
 			createProduct("Azulandia", 
 										"Azul cielo, azul mar, azul precioso azul de mi corazón, con el azul la vida te sonríe. Vístete de azul con este fabuloso vestido de seda.", 
@@ -258,7 +258,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user3_model2_3.jpg", 
 										14, 
 										"", "", "", 
-										12);
+										12, user.shop.name);
 			
 			createProduct("Vinyl Wallet", 
 										"Pequeña, llamativa, exclusiva para mujer... no se a que estás esperando. Todo hecho a mano y con materiales de calidad.", 
@@ -273,7 +273,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user3_comp1_3.jpg", 
 										12, 
 										"", "", "", 
-										6);
+										6, user.shop.name);
 			
 			createProduct("Summer is comming", 
 										"Preciosa cartera de mujer hecha a mano con flores en tonos naranjas y amarillos.", 
@@ -288,7 +288,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user3_comp2_3.jpg", 
 										9, 
 										"", "", "", 
-										21);
+										21, user.shop.name);
 			
 			createProduct("Cantale al caracol", 
 										"Si eres fanáticos de los pequeños detalles y de las plantas, no podrás decir que no a este artículo.", 
@@ -303,7 +303,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user3_deco1_3.jpg", 
 										6, 
 										"", "", "", 
-										7);
+										7, user.shop.name);
     };
 
     if (userselect == "user4") {
@@ -321,7 +321,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user4_moda1_3.jpg", 
 										9, 
 										"", "", "", 
-										10);
+										10, user.shop.name);
 			
 			createProduct("TUCSON", 
 										"Nuevo short estilo TUCSON. Sólo para ocasiones especiales!", 
@@ -336,7 +336,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user4_moda2_3.jpg", 
 										14, 
 										"", "", "", 
-										12);
+										12, user.shop.name);
 			
 			createProduct("Cuerlock 2014", 
 										"Relos de pulsera de cuero para mujeres atrevidas y diferentes. Con un diámetro ideal de 3,5 cm.", 
@@ -351,7 +351,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user4_comp1_3.jpg", 
 										12, 
 										"", "", "", 
-										24);
+										24, user.shop.name);
 			
 			createProduct("LTDIW Clock", 
 										"Te has dado cuenta verdad? Lo has visto? Este reloj está hecho especialmente para ti. Claro, con fuerza y pasión.", 
@@ -366,7 +366,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user4_comp2_3.jpg", 
 										6, 
 										"", "", "", 
-										10);
+										10, user.shop.name);
 			
 			createProduct("iWear Rack", 
 										"Dale un toque chic a tu salón con este organizador de pared para gafas, cartera o lo que se te ocurra. Crea tendencia!", 
@@ -381,7 +381,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user4_deco1_3.jpg", 
 										2, 
 										"", "", "", 
-										76);
+										76, user.shop.name);
     };
 
     if (userselect == "user5") {
@@ -399,7 +399,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 											"https://s3.amazonaws.com/api-clickchic-img/prod_user5_moda1_3.jpg", 
 											10, 
 											"", "", "", 
-											22);
+											22, user.shop.name);
 				
 				createProduct("LuxiriusPink", 
 											"Preciosa lencería en tonos rosa y champagne. Para esas noches de pasión!", 
@@ -414,7 +414,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 											"https://s3.amazonaws.com/api-clickchic-img/prod_user5_moda2_3.jpg", 
 											14, 
 											"", "", "", 
-											12);
+											12, user.shop.name);
 				
 				createProduct("Turquise For Her", 
 											"Precioso collar color turquesa con pinchos. Demuestra que eres atrevida en formas y colores.", 
@@ -429,7 +429,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 											"https://s3.amazonaws.com/api-clickchic-img/prod_user5_comp1_3.jpg", 
 											14, 
 											"", "", "", 
-											28);
+											28, user.shop.name);
 				
 				createProduct("One for domain all", 
 											"Anillo tresillo con estilo original y único. Edición limitada. Marca tu propia tendencia.", 
@@ -444,7 +444,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 											"https://s3.amazonaws.com/api-clickchic-img/prod_user5_comp2_3.jpg", 
 											6, 
 											"", "", "", 
-											12);
+											12, user.shop.name);
 				
 				createProduct("Pallet/Skip coffee", 
 											"Mesa estilo antiguo y moderno. Ideal para contrastar en cualquier habitación de la casa en la que quieras marcar la diferencia.", 
@@ -459,7 +459,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 											"https://s3.amazonaws.com/api-clickchic-img/prod_user6_deco1_3.jpg", 
 											6, 
 											"", "", "", 
-											12);
+											12, user.shop.name);
     };
 
     if (userselect == "user6") {
@@ -477,7 +477,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user6_moda1_3.jpg", 
 										22, 
 										"", "", "", 
-										33);
+										33, user.shop.name);
 			
 			createProduct("Sandalias_Greek", 
 										"Diseño único! Utiliza el distinguido calzado que se utilizaba en la antigua Grecia.", 
@@ -492,7 +492,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user6_moda2_3.jpg", 
 										3, 
 										"", "", "", 
-										19);
+										19, user.shop.name);
 			
 			createProduct("RoyalFan", 
 										"Bandera americana correa para tus gafas. Siente el estilo alternativo de la gran manzana!", 
@@ -507,7 +507,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user6_comp1_3.jpg", 
 										9, 
 										"", "", "", 
-										31);
+										31, user.shop.name);
 			
 			createProduct("B&W Verano2014", 
 										"Preciosa pajarita azul con constraste blanco. Es de doble cara y ha sido diseñada exclisivamente para el verano 2014. Marca tendencia.", 
@@ -522,7 +522,7 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user6_comp2_3.jpg", 
 										6, 
 										"", "", "", 
-										12);
+										12, user.shop.name);
 			
 			createProduct("Sunshine Yellow", 
 										"Para esos fanáticos del orden, del color amarillo y de la forma de destacar en los pequeños detalles. Marca la diferencia con estos organizadores de especias.", 
@@ -537,14 +537,14 @@ function createUser(userselect, username, email, password, shopname, lat, lon, t
 										"https://s3.amazonaws.com/api-clickchic-img/prod_user5_deco1_3.jpg", 
 										6, 
 										"", "", "", 
-										12);
+										12, user.shop.name);
     };   	
 
     }	
   });
 };
 
-function createProduct(model, description, seller_id, seller_name, seller_twitter, seller_avatar, category_id, price, image1, image2, image3, units, colour, gender, size, views_count) {
+function createProduct(model, description, seller_id, seller_name, seller_twitter, seller_avatar, category_id, price, image1, image2, image3, units, colour, gender, size, views_count, seller_shop) {
   var product = new Product({ 
   	model: model, 
   	description: description,
@@ -554,7 +554,8 @@ function createProduct(model, description, seller_id, seller_name, seller_twitte
   	seller_avatar: "https://s3.amazonaws.com/api-clickchic-img/mini_avatar.png",
   	category_id: category_id,
   	price: price,
-  	units: units
+  	units: units,
+  	seller_shop: seller_shop
   });
   
   if (colour && colour != "") {

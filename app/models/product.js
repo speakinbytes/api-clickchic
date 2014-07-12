@@ -11,6 +11,7 @@ var Product = new Schema({
                     ref: 'User'
                   },
   seller_name:    { type: String },
+  seller_shop:    { type: String }, 
   seller_twitter: { type: String }, 
   seller_avatar:  { type: String },  
   category_id:    { type: String },

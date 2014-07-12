@@ -324,6 +324,10 @@
         } else {
           product.seller_twitter = "@clickchic";
         }
+
+        if (user.shop.name && user.shop.name != "") {
+          product.seller_name = user.shop.name;
+        }
         
         if (user.photo && user.photo != "") {
           product.seller_avatar = user.photo;
