@@ -40,8 +40,23 @@
                       "last: " + req.body.last);
 
     if (!req.body.token && !req.body.seller_id && !req.body.category_id && !req.body.featured && !req.body.last) {
-      res.statusCode = 200;
-      return res.send({ status: "error", error_msg: 'Need params. Remember: token or seller_id or category_id or featured or last' });
+      log.info("Dentro  de sin parámetros");
+      
+      Product.find().exec(function(err, products) {
+        if (products.length == 0) {
+          res.statusCode = 200;
+          log.info('Status(%d): %s',res.statusCode, "No find products. :(");        
+          return res.send( { status: "error", error_msg: "Not products." });
+        }
+        if(!err) {
+          res.statusCode = 200;
+          return res.send({ status: "ok", "products" : products });
+        } else {
+          res.statusCode = 500;
+          log.error('Internal error(%d): %s',res.statusCode,err.message);
+          res.send({ status: "error", error_msg: 'Server error' });
+        }
+      });
     };
 
     if (req.body.token && req.body.seller_id) {
