@@ -341,7 +341,7 @@
         }
 
         if (user.shop.name && user.shop.name != "") {
-          product.seller_name = user.shop.name;
+          product.seller_shop = user.shop.name;
         }
         
         if (user.photo && user.photo != "") {
@@ -495,8 +495,91 @@
     });
   }
 
+
+// Utils for discover
+var x = 0;
+var response = [];
+var loopArray = function(users, req, res) {
+  customAlert(users[x],function(){
+    // set x to next item
+    x++;
+
+    // any more items in array? continue loop
+    if(x < users.length) {
+      loopArray(users, req, res);   
+    }
+    if(x == users.length) {
+      res.send({status: "ok", discover: response });
+    }
+  }); 
+}
+
+function customAlert(u,callback) {
+    // code to show your custom alert
+    // in this case its just a console log
+    Product.find({"seller_id": u._id}).select("model images").exec(function(err_product, products){
+      if (products && products.length > 0 && !err_product){
+        var discover = {};
+        discover["seller_id"] = u._id;
+        discover["seller_products"] = u.products_count;
+        discover["seller_clickchic"] = u.clickchick_count;
+        discover["seller_name"] = u.userName;
+        discover["seller_shop"] = u.shop.name;
+        discover["products"] = products;
+
+        response.push(discover);
+        // do callback when ready
+        callback();
+      }
+    });
+
+    
+}
+
+exports.discover = function(req, res) {
+  log.info("POST - /api/v1/discover - params token: " + req.body.token);
+
+  // Input validations
+  // Needs one params
+  if (!req.body.token) {
+    return res.send({ status: "error", error_msg: "You need more params! Remember: token (body)" });
+  };
+
+  return User.findOne( { token: req.body.token }, function(err, user) {
+    if(!user) {
+      res.statusCode = 200;
+      return res.send({ status: "error", error_msg: 'Not user' });
+    }
+
+    if (!err) {
+      User.find().where("_id").ne(user._id).select('userName clickchick_count products_count shop.name').exec(function(err_user, users) {
+        if(!users || users.length == 0) {
+          res.statusCode = 404;
+          return res.send({ status: "error", error_msg: 'Not found products' });
+        }
+        if (!err_user) {
+          response = [];
+          x= 0;
+          
+          // Como tengo que esperar a que se hagan las búsquedas dentro del for, y a que acabe todo el for, he 
+          // implementado algo mágico
+          loopArray(users, req, res);
+          
+        } else {
+          log.error('Internal error(%d): %s',res.statusCode,err.message);
+          res.send({ status: "error", error_msg: 'Server error' });
+        }
+      });
+    } else {
+      log.error('Internal error(%d): %s',res.statusCode,err.message);
+      res.send({ status: "error", error_msg: 'Server error' });
+    }
+  });
+
+}
+
  exports.newComment = function(req, res) {
-  log.info("PUT - /api/v1/product/comment - params token: " + req.body.token + "params product_id: " + req.body.product_id);
+  log.info("PUT - /api/v1/product/comment - params token: " + req.body.token + "params product_id: " + req.params.id);
 
   // Input validations
   // Needs one params
@@ -546,7 +629,7 @@
  };
 
 exports.changeLike = function(req, res) {
-  log.info("PUT - /api/v1/product/like - params token: " + req.body.token + "params product_id: " + req.body.product_id);
+  log.info("PUT - /api/v1/product/like - params token: " + req.body.token + "params product_id: " + req.params.id);
 
   // Input validations
   // Needs one params

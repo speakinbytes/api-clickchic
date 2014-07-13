@@ -20,6 +20,7 @@ module.exports = function(app, passport) {
         .delete(products.deleteProduct);
     app.post('/api/v1/product/:id/comment', products.newComment);
     app.post('/api/v1/product/:id/like', products.changeLike);
+    app.post('/api/v1/discover', products.discover);
 
     // Categories Routes
     var categories = require('../app/controllers/categories');
